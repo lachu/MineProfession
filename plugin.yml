@@ -1,0 +1,19 @@
+name: MineProfession
+main: com.github.lachu.MineProfession.MineProfession
+version: 0
+commands:
+	mineprofession:
+		description: main command of mineprofession
+		permission: mineprofession.base
+		permission-message: You don't have permission to use this command.
+		usage: |
+		/<command>
+
+permissions:
+	mineprofession.*:
+		description: Permission to use all mineprofession commands.
+	mineprofession.base:
+		description: Permission to have a career.
+	mineprofession.list:
+		description: Permission to see what career other players are.
+	mineprofession.
