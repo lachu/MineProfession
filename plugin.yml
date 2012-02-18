@@ -6,14 +6,34 @@ commands:
 		description: main command of mineprofession
 		permission: mineprofession.base
 		permission-message: You don't have permission to use this command.
-		usage: |
-		/<command>
+		usage: | 
+			/<command> profession - to see what profession is available
+			/<command> player - to see what profession, profession level, profession experience and etc of yourself.
+			/<command> player [player] - to see what profession, profession level, profession experience and etc of the player.
+			/<command> transfer [profession] - transfer your own profession.
+			/<command> transfer [profession] <player> - transfer the player's profession.
+			/<command> second [profession] - transfer your own second profession.  
+			/<command> second [profession] <player> - transfer the player's second profession.
 
 permissions:
 	mineprofession.*:
 		description: Permission to use all mineprofession commands.
+		children:
+			mineprofession.base: true
+			mineprofession.peek: true
+			mineprofession.transferself: true
+			mineprofession.transferothers: true
 	mineprofession.base:
-		description: Permission to have a career.
-	mineprofession.list:
-		description: Permission to see what career other players are.
-	mineprofession.
+		description: Permission to have a profession.
+	mineprofession.peek:
+		description: Permission to see what profession other players are.
+		children:
+			mineprofession.base
+	mineprofession.transferself:
+		description: Permission to change your own profession.
+		children:
+			mineprofession.base
+	mineprofession.transferothers:
+		description: Permission to change others' profession.
+		children:
+			mineprofession.transferself
