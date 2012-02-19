@@ -1,39 +1,58 @@
 name: MineProfession
 main: com.github.lachu.MineProfession.MineProfession
-version: 0
+version: 0.1
 commands:
-	mineprofession:
-		description: main command of mineprofession
-		permission: mineprofession.base
-		permission-message: You don't have permission to use this command.
-		usage: | 
-			/<command> profession - to see what profession is available
-			/<command> player - to see what profession, profession level, profession experience and etc of yourself.
-			/<command> player [player] - to see what profession, profession level, profession experience and etc of the player.
-			/<command> transfer [profession] - transfer your own profession.
-			/<command> transfer [profession] <player> - transfer the player's profession.
-			/<command> second [profession] - transfer your own second profession.  
-			/<command> second [profession] <player> - transfer the player's second profession.
+   mineprofession:
+      description: main command of mineprofession
+      aliases: minepro
+      permission: mineprofession.basic
+      permission-message: You don't have permission to use this command.
+      usage: | 
+         /<command> - same as "/<command> help". (mineprofession.basic) (Help)
+         /<command> help - the help command. (mineprofession.basic) (Help)
+         /<command> list - show what professions are available. (mineprofession.basic) (List)
+         /<command> query - show profession data of yourself. (mineprofession.basic) (QuerySelf)
+         /<command> query [player] - show profession data of the player. (mineprofession.peek) (QueryOther)
+         /<command> major [profession] - transfer your own major profession. (mineprofession.transferself) (MajorSelf)
+         /<command> major [profession] [player] - transfer the player's major profession. (mineprofession.transferothers) (MajorOther)
+         /<command> clear - clear your own profession. (mineprofession.transferself) (ClearSelf)
+         /<command> clear [player] - clear the player's profession. (mineprofession.transferothers) (ClearOther)
+         /<command> minor [profession] - transfer your own minor profession. (mineprofession.transferself) (MinorSelf)
+         /<command> minor [profession] [player] - transfer the player's minor profession. (mineprofession.transferothers) (MinorOther)
+         /<command> setbutton [profession] - set a button that transfer the player pressing it. (mineprofession.buttonmanager) (SetButton)
+         /<command> removebutton - remove the function of a button. (mineprofession.buttonmanager) (RemoveButton)
+         /<command> reseterbutton - set a button that reset the profession of the player pressing it. (mineprofession.buttonmanager) (ResetButton)
+         /<command> clearallbutton - clear all button sets. (mineprofession.buttonmanager) (ClearAllButton)
+         /<command> save - save the playerTable. (mineprofession.admin) (Save)
 
 permissions:
-	mineprofession.*:
-		description: Permission to use all mineprofession commands.
-		children:
-			mineprofession.base: true
-			mineprofession.peek: true
-			mineprofession.transferself: true
-			mineprofession.transferothers: true
-	mineprofession.base:
-		description: Permission to have a profession.
-	mineprofession.peek:
-		description: Permission to see what profession other players are.
-		children:
-			mineprofession.base
-	mineprofession.transferself:
-		description: Permission to change your own profession.
-		children:
-			mineprofession.base
-	mineprofession.transferothers:
-		description: Permission to change others' profession.
-		children:
-			mineprofession.transferself
+   mineprofession.*:
+      description: Permission to use all mineprofession commands.
+      children:
+         mineprofession.basic: true
+         mineprofession.peek: true
+         mineprofession.transferself: true
+         mineprofession.transferothers: true
+         mineprofession.buttonmanager: true
+         mineprofession.admin: true
+   mineprofession.basic:
+      description: Permission to have a profession.
+      default: true
+   mineprofession.peek:
+      description: Permission to see what profession other players are.
+      children:
+         mineprofession.basic: true
+   mineprofession.transferself:
+      description: Permission to change your own profession.
+      children:
+         mineprofession.basic: true
+   mineprofession.transferothers:
+      description: Permission to change others' profession.
+      children:
+         mineprofession.transferself: true
+   mineprofession.buttonmanager:
+      description: Permission to make/remove buttons.
+      children:
+         mineprofession.transferself: true
+   mineprofession.admin:
+      description: admin

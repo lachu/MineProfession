@@ -1,0 +1,1 @@
+backup: true # make a copy of playerTable in MineProfession/backup when saving the table

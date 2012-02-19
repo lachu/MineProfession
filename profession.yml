@@ -1,0 +1,28 @@
+miner:
+   description: mine faster, may get extra minerals.
+   experience:
+   abilities:
+lumberjack:
+   description: log faster, may get extra woods.
+   experience:
+   abilities:
+farmer:
+   description: may gain extra crops.
+   experience:
+   abilities:
+pastoral:
+   description: may gain extra livestock products.
+   experience:
+   abilities:
+blacksmith:
+   description: may get an extra tool when crafting a tool.
+   experience:
+   abilities:
+hunter:
+   description: gain extra loot when killing hostile mobs, stronger when fighting mobs.
+   experience:
+   abilities:
+enchanter:
+   description: gain extra experience when killing mobs.
+   experience:
+   abilities:
