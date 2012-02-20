@@ -2,6 +2,7 @@ package com.github.lachu.MineProfession;
 
 import java.util.HashMap;
 
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -9,7 +10,6 @@ import org.bukkit.entity.Player;
 
 import com.github.lachu.MineProfession.command.Help;
 import com.github.lachu.MineProfession.command.MyCommand;
-import com.github.lachu.MineProfession.command.Save;
 
 public class CommandInvoker implements CommandExecutor{
 	private MineProfession mp;
@@ -51,11 +51,20 @@ public class CommandInvoker implements CommandExecutor{
 				args = new String[] { "help" };
 			}
 			String cmdKey = args[0] + " " + Integer.toString(args.length);
+			if(!commands.containsKey(cmdKey)){
+				sender.sendMessage("MineProfession: Wrong Usage.");
+				MyCommand cmdInstance = new Help();
+				return cmdInstance.execute(mp, sender, cmd, args);
+			}
 			try {
 				String cmdName = "com.github.lachu.MineProfession.command." + commands.get(cmdKey);
 				Class<?> cmdClass = Class.forName(cmdName);
 				MyCommand cmdInstance = (MyCommand) cmdClass.newInstance();
-				return cmdInstance.execute(mp, sender, cmd, args);
+				if(sender.hasPermission(permissions.get(cmdKey))){
+					return cmdInstance.execute(mp, sender, cmd, args);
+				}else{
+					sender.sendMessage(ChatColor.RED+"You don't have the permission required.");
+				}
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
 				sender.sendMessage("MineProfession: Wrong Usage.");
@@ -64,11 +73,7 @@ public class CommandInvoker implements CommandExecutor{
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-		} else if (sender.isOp()){
-			if(args.length==1 && args[0].equalsIgnoreCase("save")){
-				new Save().execute(mp, sender, cmd, args);
-			}
 		}
-		return false;
+		return true;
 	}
 }

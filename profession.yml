@@ -19,7 +19,7 @@ blacksmith:
    experience:
    abilities:
 hunter:
-   description: gain extra loot when killing hostile mobs, stronger when fighting mobs.
+   description: may get extra loot killing hostile mobs, stronger fighting mobs.
    experience:
    abilities:
 enchanter:

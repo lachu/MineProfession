@@ -1,5 +1,6 @@
 package com.github.lachu.MineProfession.command;
 
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
@@ -16,7 +17,8 @@ public class Help implements MyCommand{
 			line = line.replaceAll("\\<command\\>","mineprofession");
 			String[] temp = line.split(" \\(");
 			if( sender.hasPermission( temp[1].trim().substring(0, temp[1].length()-1).trim() ) ){
-				sender.sendMessage(temp[0].trim());
+				temp = temp[0].split("-");
+				sender.sendMessage(ChatColor.GREEN+temp[0]+ChatColor.WHITE+"-"+temp[1]);
 			}
 		}
 		return true;

@@ -1,15 +1,20 @@
 package com.github.lachu.MineProfession.command;
 
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
 import com.github.lachu.MineProfession.MineProfession;
 
-public class Save implements MyCommand {
+public class ClearMinorSelf implements MyCommand {
 
 	@Override
 	public boolean execute(MineProfession mp, CommandSender sender, Command cmd, String[] args) {
-		mp.data.saveTable(mp.getConfig().getBoolean("backup"));
+		if(mp.data.clearMinor(sender.getName())){
+			sender.sendMessage(ChatColor.GREEN+"Your minor profession is cleared.");
+		}else{
+			sender.sendMessage(ChatColor.YELLOW+"You do not have a minor profession.");
+		}
 		return true;
 	}
 

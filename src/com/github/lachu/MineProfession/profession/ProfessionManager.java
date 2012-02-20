@@ -3,7 +3,6 @@ package com.github.lachu.MineProfession.profession;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Set;
 
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -24,10 +23,7 @@ public class ProfessionManager {
 		proYaml = new YamlConfiguration();
 		try {
 			proYaml.load(proFile);
-			Set<String> set = proYaml.getKeys(false);
-			for(String str:set){
-				mp.log.info(str);
-			}
+			//TODO
 		} catch (FileNotFoundException e) {
 			mp.log.info("MineProfession: Missing MineProfession/profession.yml");
 		} catch (IOException e) {
