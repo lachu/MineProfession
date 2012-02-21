@@ -1,6 +1,6 @@
 name: MineProfession
-main: com.github.lachu.MineProfession.MineProfession
-version: dev 0.2
+main: tw.lachu.MineProfession.MineProfession
+version: 0.2de
 commands:
    mineprofession:
       description: main command of mineprofession
@@ -26,7 +26,15 @@ commands:
          /<command> clearminorbutton - set a button that reset the major profession of the player pressing it. (mineprofession.buttonmanager) (ClearMinorButton)
          /<command> removebutton - remove the function of a button. (mineprofession.buttonmanager) (RemoveButton)
          /<command> removeallbutton - clear all button sets. (mineprofession.buttonmanager) (RemoveAllButton)
+   mineprofessionadmin:
+      description: admin command of mineprofession
+      aliases: mineproadmin
+      permission: mineprofession.admin
+      permission-message: You don't have permission to use this command.
+      usage: |
+         /<command> help - the help command. (mineprofession.admin) (Help)
          /<command> save - save the playerTable. (mineprofession.admin) (Save)
+         /<command> reloadconfig - reload the config of this plugin. (mineprofession.admin) (ReloadConfig)
 
 permissions:
    mineprofession.*:
