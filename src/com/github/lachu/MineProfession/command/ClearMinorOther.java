@@ -15,12 +15,12 @@ public class ClearMinorOther implements MyCommand {
 		if((target=mp.getServer().getPlayer(args[1]))!=null){
 			if(mp.data.clearMinor(args[1])){
 				sender.sendMessage(ChatColor.GREEN+args[1]+"'s minor profession is cleared.");
-				target.sendMessage(ChatColor.GREEN+"Your minor profession is cleared by "+sender.getName()+".");
+				target.sendMessage(ChatColor.YELLOW+"Your minor profession is cleared by "+sender.getName()+".");
 			}else{
-				sender.sendMessage(ChatColor.YELLOW+args[1]+" do not have a minor profession.");
+				sender.sendMessage(ChatColor.RED+args[1]+" do not have a minor profession.");
 			}
 		}else{
-			sender.sendMessage(ChatColor.YELLOW+"Cannot find player "+args[1]+".");
+			sender.sendMessage(ChatColor.RED+"Cannot find player "+args[1]+".");
 		}
 		return true;
 	}

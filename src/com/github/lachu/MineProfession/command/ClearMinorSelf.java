@@ -13,7 +13,7 @@ public class ClearMinorSelf implements MyCommand {
 		if(mp.data.clearMinor(sender.getName())){
 			sender.sendMessage(ChatColor.GREEN+"Your minor profession is cleared.");
 		}else{
-			sender.sendMessage(ChatColor.YELLOW+"You do not have a minor profession.");
+			sender.sendMessage(ChatColor.RED+"You do not have a minor profession.");
 		}
 		return true;
 	}

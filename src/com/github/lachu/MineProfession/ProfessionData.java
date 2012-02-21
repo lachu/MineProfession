@@ -75,9 +75,9 @@ public class ProfessionData {
 		}
 	}
 	
-	public synchronized void saveTable(boolean backup){
+	public synchronized boolean saveTable(boolean backup){
 		mp.log.info("MineProfession: Going to save player data.");
-
+		boolean success = false;
 		{
 			Set<String> set = data.keySet();
 			for(String str:set){
@@ -91,6 +91,7 @@ public class ProfessionData {
 			oos.flush();
 			oos.close();
 			mp.log.info("MineProfession: player data saved.");
+			success = true;
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 			mp.log.info("MineProfession: Cannot save player data to "+dbFile.toString());
@@ -132,6 +133,7 @@ public class ProfessionData {
 				mp.log.info("MineProfession: Backup player data to "+backFile.toString()+" failed.");
 			}
 		}
+		return success;
 	}
 	
 	public String[] getProfessions(){

@@ -26,7 +26,7 @@ public class QuerySelf implements MyCommand{
 					sender.sendMessage("Minor: "+ChatColor.GREEN+"none");
 				}
 			}else{
-				sender.sendMessage(ChatColor.YELLOW+"You do not have a profession.");
+				sender.sendMessage(ChatColor.RED+"You do not have a profession.");
 			}
 		}
 		return true;

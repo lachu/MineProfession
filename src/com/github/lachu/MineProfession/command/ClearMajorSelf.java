@@ -13,7 +13,7 @@ public class ClearMajorSelf implements MyCommand {
 		if(mp.data.clearMajor(sender.getName())){
 			sender.sendMessage(ChatColor.GREEN+"Your major and minor profession are cleared.");
 		}else{
-			sender.sendMessage(ChatColor.YELLOW+"You do not have a major profession.");
+			sender.sendMessage(ChatColor.RED+"You do not have a major profession.");
 		}
 		return true;
 	}

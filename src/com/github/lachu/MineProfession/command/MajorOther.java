@@ -13,14 +13,14 @@ public class MajorOther implements MyCommand{
 	public boolean execute(MineProfession mp, CommandSender sender, Command cmd, String[] args) {
 		Player target;
 		if((target=mp.getServer().getPlayer(args[2]))==null){
-			sender.sendMessage(ChatColor.YELLOW+"Cannot find player "+args[2]+".");
+			sender.sendMessage(ChatColor.RED+"Cannot find player "+args[2]+".");
 		}else if(!mp.data.isAProfession(args[1])){
-			sender.sendMessage(ChatColor.YELLOW+"No such profession.");
+			sender.sendMessage(ChatColor.RED+"No such profession.");
 		}else if(mp.data.setMajor(target.getName(), args[1])){
 			sender.sendMessage(ChatColor.GREEN+args[2]+"'s major is set to "+args[1]+".");
-			target.sendMessage(ChatColor.GREEN+"Your major is set to "+args[1]+" by "+sender.getName()+".");
+			target.sendMessage(ChatColor.YELLOW+"Your major is set to "+args[1]+" by "+sender.getName()+".");
 		}else{
-			sender.sendMessage(ChatColor.YELLOW+args[2]+" already has a major profession.");
+			sender.sendMessage(ChatColor.RED+args[2]+" already has a major profession.");
 		}
 		return true;
 	}
