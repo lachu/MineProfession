@@ -32,6 +32,13 @@ public class MineProfession extends JavaPlugin{
 		
 		//read player data
 		data = new ProfessionData(this, getDataFile("playerTable",false), getDataFile("profession.yml",true));
+		
+		//schedule saveTable
+		getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Runnable(){
+			public void run(){
+				data.saveTable(getConfig().getBoolean("backup"));
+			}
+		}, getConfig().getLong("auto-save-cycle")*20, getConfig().getLong("auto-save-cycle")*20);
 	}
 	
 	public void onDisable(){

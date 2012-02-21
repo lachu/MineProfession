@@ -1,1 +1,2 @@
 backup: true # make a copy of playerTable in MineProfession/backup when saving the table
+auto-save-cycle: 86400 # the cycle time of saving player data (unit: second) 

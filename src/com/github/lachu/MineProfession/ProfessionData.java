@@ -147,12 +147,12 @@ public class ProfessionData {
 	}
 	
 	public synchronized boolean clearMajor(String playerName){
-		return data.remove(playerName)!=null;
+		return data.remove(playerName.toLowerCase())!=null;
 	}
 	
 	public synchronized boolean clearMinor(String playerName){
 		PlayerEntry pe;
-		if((pe=data.get(playerName))!=null && pe.minor_profession!=null){
+		if((pe=data.get(playerName.toLowerCase()))!=null && pe.minor_profession!=null){
 			pe.minor_profession=null;
 			pe.minor_experience=BigDecimal.valueOf(0);
 			pe.minor_level=Integer.valueOf(0);
@@ -167,7 +167,7 @@ public class ProfessionData {
 	
 	public synchronized String getMajor(String playerName){
 		PlayerEntry pe;
-		if((pe=data.get(playerName))!=null){
+		if((pe=data.get(playerName.toLowerCase()))!=null){
 			return pe.major_profession;
 		}
 		return null;
@@ -175,7 +175,7 @@ public class ProfessionData {
 	
 	public synchronized String getMinor(String playerName){
 		PlayerEntry pe;
-		if((pe=data.get(playerName))!=null){
+		if((pe=data.get(playerName.toLowerCase()))!=null){
 			return pe.minor_profession;
 		}
 		return null;
@@ -183,7 +183,7 @@ public class ProfessionData {
 
 	public synchronized int getMajorLevel(String playerName){
 		PlayerEntry pe;
-		if((pe=data.get(playerName))!=null){
+		if((pe=data.get(playerName.toLowerCase()))!=null){
 			return pe.major_level.intValue();
 		}
 		return 0;
@@ -191,7 +191,7 @@ public class ProfessionData {
 	
 	public synchronized int getMinorLevel(String playerName){
 		PlayerEntry pe;
-		if((pe=data.get(playerName))!=null){
+		if((pe=data.get(playerName.toLowerCase()))!=null){
 			return pe.minor_level.intValue();
 		}
 		return 0;
@@ -199,7 +199,7 @@ public class ProfessionData {
 	
 	public synchronized int getMajorExperience(String playerName){
 		PlayerEntry pe;
-		if((pe=data.get(playerName))!=null){
+		if((pe=data.get(playerName.toLowerCase()))!=null){
 			return pe.major_experience.intValue();
 		}
 		return 0;
@@ -207,18 +207,18 @@ public class ProfessionData {
 	
 	public synchronized int getMinorExperience(String playerName){
 		PlayerEntry pe;
-		if((pe=data.get(playerName))!=null){
+		if((pe=data.get(playerName.toLowerCase()))!=null){
 			return pe.minor_experience.intValue();
 		}
 		return 0;
 	}
 	
 	public synchronized boolean setMajor(String playerName, String profession){
-		PlayerEntry pe = data.get(playerName);
+		PlayerEntry pe = data.get(playerName.toLowerCase());
 		if(isAProfession(profession) && (pe==null || pe.major_profession==null)){
 			if(pe==null){
 				pe = new PlayerEntry();
-				data.put(playerName,pe);
+				data.put(playerName.toLowerCase(),pe);
 			}
 			pe.major_profession = profession;
 			pe.major_level = Integer.valueOf(0);
@@ -230,7 +230,7 @@ public class ProfessionData {
 	}
 	
 	public synchronized boolean setMinor(String playerName, String profession){
-		PlayerEntry pe = data.get(playerName);
+		PlayerEntry pe = data.get(playerName.toLowerCase());
 		if(isAProfession(profession) && pe!=null && pe.major_level>=25 && pe.minor_profession==null){
 			pe.minor_profession = profession;
 			pe.minor_level = Integer.valueOf(0);
