@@ -14,7 +14,7 @@ public class MajorOther implements MyCommand{
 		Player target;
 		if((target=mp.getServer().getPlayer(args[2]))==null){
 			sender.sendMessage(ChatColor.YELLOW+"Cannot find player "+args[2]+".");
-		}else if(!mp.data.hasProfession(args[1])){
+		}else if(!mp.data.isAProfession(args[1])){
 			sender.sendMessage(ChatColor.YELLOW+"No such profession.");
 		}else if(mp.data.setMajor(target.getName(), args[1])){
 			sender.sendMessage(ChatColor.GREEN+args[2]+"'s major is set to "+args[1]+".");

@@ -10,7 +10,7 @@ public class MajorSelf implements MyCommand{
 
 	@Override
 	public boolean execute(MineProfession mp, CommandSender sender, Command cmd, String[] args) {
-		if(!mp.data.hasProfession(args[1])){
+		if(!mp.data.isAProfession(args[1])){
 			sender.sendMessage(ChatColor.YELLOW+"No such profession.");
 		}else if(mp.data.setMajor(sender.getName(), args[1])){
 			sender.sendMessage(ChatColor.GREEN+"Your major profession is now "+args[1]+".");

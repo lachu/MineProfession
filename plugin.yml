@@ -1,6 +1,6 @@
 name: MineProfession
 main: com.github.lachu.MineProfession.MineProfession
-version: 0.1
+version: dev 0.2
 commands:
    mineprofession:
       description: main command of mineprofession

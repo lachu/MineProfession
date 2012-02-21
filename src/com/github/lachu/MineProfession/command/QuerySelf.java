@@ -12,20 +12,22 @@ public class QuerySelf implements MyCommand{
 	public boolean execute(MineProfession mp, CommandSender sender, Command cmd, String[] args) {
 		String major;
 		String name = sender.getName();
-		if((major=mp.data.getMajor(name))!=null){
-			sender.sendMessage("Major: "+ChatColor.GREEN+major);
-			sender.sendMessage("Level: "+ChatColor.GREEN+mp.data.getMajorLevel(name));
-			sender.sendMessage("Experience: "+ChatColor.GREEN+mp.data.getMajorExperience(name));
-			String minor;
-			if((minor=mp.data.getMinor(name))!=null){
-				sender.sendMessage("Minor: "+ChatColor.GREEN+minor);
-				sender.sendMessage("Level: "+ChatColor.GREEN+mp.data.getMinorLevel(name));
-				sender.sendMessage("Experience: "+ChatColor.GREEN+mp.data.getMinorExperience(name));
+		synchronized(mp.data){
+			if((major=mp.data.getMajor(name))!=null){
+				sender.sendMessage("Major: "+ChatColor.GREEN+major);
+				sender.sendMessage("Level: "+ChatColor.GREEN+mp.data.getMajorLevel(name));
+				sender.sendMessage("Experience: "+ChatColor.GREEN+mp.data.getMajorExperience(name));
+				String minor;
+				if((minor=mp.data.getMinor(name))!=null){
+					sender.sendMessage("Minor: "+ChatColor.GREEN+minor);
+					sender.sendMessage("Level: "+ChatColor.GREEN+mp.data.getMinorLevel(name));
+					sender.sendMessage("Experience: "+ChatColor.GREEN+mp.data.getMinorExperience(name));
+				}else{
+					sender.sendMessage("Minor: "+ChatColor.GREEN+"none");
+				}
 			}else{
-				sender.sendMessage("Minor: "+ChatColor.GREEN+"none");
+				sender.sendMessage(ChatColor.YELLOW+"You do not have a profession.");
 			}
-		}else{
-			sender.sendMessage(ChatColor.YELLOW+"You do not have a profession.");
 		}
 		return true;
 	}
