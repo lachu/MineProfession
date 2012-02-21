@@ -44,6 +44,9 @@ public class MineProfession extends JavaPlugin{
 				data.saveTable(getConfig().getBoolean("backup"));
 			}
 		}, getConfig().getLong("auto-save-cycle")*20, getConfig().getLong("auto-save-cycle")*20);
+		
+		//register listener
+		getServer().getPluginManager().registerEvents(pm, this);
 	}
 	
 	public void onDisable(){
