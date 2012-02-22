@@ -19,9 +19,10 @@ public class MineProfession extends JavaPlugin{
 	public void onEnable(){
 		//print a message.
 		log.info("MineProfession has been enabled!");
-		if(getDataFile("config.yml",true)==null){
+		getConfig().options().copyDefaults(true);
+		/*if(getDataFile("config.yml",true)==null){
 			saveDefaultConfig();
-		}
+		}*/
 		reloadConfig();
 		
 		//initialize command handler
@@ -47,6 +48,7 @@ public class MineProfession extends JavaPlugin{
 		
 		//register listener
 		getServer().getPluginManager().registerEvents(pm, this);
+		getServer().getPluginManager().registerEvents(new DropReplace(this), this);
 	}
 	
 	public void onDisable(){

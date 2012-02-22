@@ -17,6 +17,8 @@ commands:
          /<command> major [profession] [player] - transfer the player's major profession. (mineprofession.transferothers) (MajorOther)
          /<command> minor [profession] - transfer your own minor profession. (mineprofession.transferself) (MinorSelf)
          /<command> minor [profession] [player] - transfer the player's minor profession. (mineprofession.transferothers) (MinorOther)
+         /<command> promote - replace your major profession with your minor profession. (mineprofession.transferself) (PromoteSelf)
+         /<command> promote [player] - replace the player's major profession with the player's minor profession. (mineprofession.transferother) (PromoteOther)
          /<command> clearmajor - clear your own profession. (mineprofession.transferself) (ClearMajorSelf)
          /<command> clearmajor [player] - clear the player's profession. (mineprofession.transferothers) (ClearMajorOther)
          /<command> clearminor - clear your own profession. (mineprofession.transferself) (ClearMinorSelf)

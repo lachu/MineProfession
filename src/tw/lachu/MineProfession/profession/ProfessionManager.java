@@ -14,8 +14,6 @@ import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.enchantment.EnchantItemEvent;
 import org.bukkit.event.player.PlayerShearEntityEvent;
 
 import tw.lachu.MineProfession.MineProfession;
@@ -53,7 +51,6 @@ public class ProfessionManager implements Listener{
 	}
 	
 	public void generalListener(Event event, String playerName){
-		mp.log.info(event.toString());
 	 	Profession major = proMap.get(mp.data.getMajor(playerName));
 		Profession minor = proMap.get(mp.data.getMinor(playerName));
 		try {
@@ -94,19 +91,9 @@ public class ProfessionManager implements Listener{
 	}
 	
 	@EventHandler
-	public void onEvent(BlockPlaceEvent event){
-		mp.log.info(event.getEventName()+": '"+event.getBlock().getType().name()+"'");
-		this.generalListener(event, event.getPlayer().getName());
-	}
-	
-	@EventHandler
 	public void onEvent(PlayerShearEntityEvent event){
 		mp.log.info(event.getEventName()+": '"+event.getEntity().toString()+"'");
 		this.generalListener(event, event.getPlayer().getName());
 	}
 	
-	@EventHandler
-	public void onEvent(EnchantItemEvent event){
-		mp.log.info(event.toString());
-	}
 }

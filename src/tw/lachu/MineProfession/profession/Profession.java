@@ -6,7 +6,6 @@ import java.util.Set;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.event.Event;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerShearEntityEvent;
 
 import tw.lachu.MineProfession.MineProfession;
@@ -54,10 +53,6 @@ public class Profession{
 	}
 	
 	public void onEvent(BlockBreakEvent event){
-		gainExperience(event.getPlayer().getName(), event, event.getBlock().getType().name());
-	}
-
-	public void onEvent(BlockPlaceEvent event){
 		gainExperience(event.getPlayer().getName(), event, event.getBlock().getType().name());
 	}
 	

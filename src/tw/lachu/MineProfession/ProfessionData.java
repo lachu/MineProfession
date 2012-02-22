@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Set;
@@ -20,11 +19,11 @@ public class ProfessionData {
 	public static class PlayerEntry implements Serializable{
 		private static final long serialVersionUID = 1L;
 		String major_profession;
-		Integer major_level;
-		BigDecimal major_experience;
+		int major_level;
+		double major_experience;
 		String minor_profession;
-		Integer minor_level;
-		BigDecimal minor_experience;
+		int minor_level;
+		double minor_experience;
 	}
 	private HashMap<String,PlayerEntry> data;
 	private MineProfession mp;
@@ -156,8 +155,8 @@ public class ProfessionData {
 		PlayerEntry pe;
 		if((pe=data.get(playerName.toLowerCase()))!=null && pe.minor_profession!=null){
 			pe.minor_profession=null;
-			pe.minor_experience=BigDecimal.valueOf(0);
-			pe.minor_level=Integer.valueOf(0);
+			pe.minor_experience=0;
+			pe.minor_level=0;
 			return true;
 		}
 		return false;
@@ -186,7 +185,7 @@ public class ProfessionData {
 	public synchronized int getMajorLevel(String playerName){
 		PlayerEntry pe;
 		if((pe=data.get(playerName.toLowerCase()))!=null){
-			return pe.major_level.intValue();
+			return pe.major_level;
 		}
 		return 0;
 	}
@@ -194,7 +193,7 @@ public class ProfessionData {
 	public synchronized int getMinorLevel(String playerName){
 		PlayerEntry pe;
 		if((pe=data.get(playerName.toLowerCase()))!=null){
-			return pe.minor_level.intValue();
+			return pe.minor_level;
 		}
 		return 0;
 	}
@@ -202,7 +201,7 @@ public class ProfessionData {
 	public synchronized int getMajorExperience(String playerName){
 		PlayerEntry pe;
 		if((pe=data.get(playerName.toLowerCase()))!=null){
-			return pe.major_experience.intValue();
+			return (int)pe.major_experience;
 		}
 		return 0;
 	}
@@ -210,9 +209,31 @@ public class ProfessionData {
 	public synchronized int getMinorExperience(String playerName){
 		PlayerEntry pe;
 		if((pe=data.get(playerName.toLowerCase()))!=null){
-			return pe.minor_experience.intValue();
+			return (int)pe.minor_experience;
 		}
 		return 0;
+	}
+	
+	public synchronized boolean setMajorLevel(String playerName, int level){
+		PlayerEntry pe;
+		if((pe=data.get(playerName.toLowerCase()))!=null && pe.major_profession!=null){
+			if(level>0 && level<mp.getConfig().getInt("max-major-level")){
+				pe.major_level = level;
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public synchronized boolean setMinorLevel(String playerName, int level){
+		PlayerEntry pe;
+		if((pe=data.get(playerName.toLowerCase()))!=null && pe.minor_profession!=null){
+			if(level>0 && level<mp.getConfig().getInt("max-minor-level")){
+				pe.minor_level = level;
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	public synchronized boolean setMajor(String playerName, String profession){
@@ -223,9 +244,9 @@ public class ProfessionData {
 				data.put(playerName.toLowerCase(),pe);
 			}
 			pe.major_profession = profession;
-			pe.major_level = Integer.valueOf(1);
-			pe.major_experience = BigDecimal.valueOf(0);
-			mp.log.info(playerName+","+pe.major_profession+","+pe.major_level+","+pe.major_experience);	
+			pe.major_level = 1;
+			pe.major_experience = 0;
+			//mp.log.info(playerName+","+pe.major_profession+","+pe.major_level+","+pe.major_experience);	
 			return true;
 		}
 		return false;
@@ -233,51 +254,51 @@ public class ProfessionData {
 	
 	public synchronized boolean setMinor(String playerName, String profession){
 		PlayerEntry pe = data.get(playerName.toLowerCase());
-		if(isAProfession(profession) && pe!=null && pe.major_level>=25 && pe.minor_profession==null){
+		if(isAProfession(profession) && pe!=null && pe.major_level>=mp.getConfig().getInt("minor-require") && pe.minor_profession==null){
 			pe.minor_profession = profession;
-			pe.minor_level = Integer.valueOf(1);
-			pe.minor_experience = BigDecimal.valueOf(0);
+			pe.minor_level = 1;
+			pe.minor_experience = 0;
 			return true;
 		}
 		return false;
 	}
 	
 	public synchronized void gainExperience(String playerName, String professionName, double expAmount){
+		
 		PlayerEntry pe = data.get(playerName.toLowerCase());
 		if(professionName == null || pe==null){
 			return;
 		}
 		
-		BigDecimal exp = BigDecimal.valueOf(expAmount);
-		BigDecimal thisLevel = BigDecimal.valueOf((double)getExperienceForLevel(pe.major_level.intValue()));
-		BigDecimal prevLevel = BigDecimal.valueOf((double)getExperienceForLevel(pe.major_level.intValue()-1));
-		BigDecimal zero = BigDecimal.valueOf(0);
+		double exp = expAmount;
+		double thisLevel = getExperienceForLevel(pe.major_level);
+		double prevLevel = getExperienceForLevel(pe.major_level-1);
 		
 		if(professionName.equals(getMajor(playerName))){
-			pe.major_experience = pe.major_experience.add(exp);
-			if(pe.major_experience.compareTo(zero)<0){
-				if(pe.major_level.intValue()==1){
-					pe.major_experience = zero;
+			pe.major_experience += exp;
+			if(pe.major_experience<0){
+				if(pe.major_level==1){
+					pe.major_experience = 0;
 				}else{
-					pe.major_experience = prevLevel.add(pe.major_experience);
-					pe.major_level = Integer.valueOf(pe.major_level.intValue()-1);
+					pe.major_experience += prevLevel;
+					pe.major_level = pe.major_level-1;
 				}
-			}else if(pe.major_experience.compareTo(thisLevel)>=0){
-				pe.major_experience = pe.major_experience.subtract(thisLevel);
-				pe.major_level = Integer.valueOf(pe.major_level.intValue()+1);
+			}else if(pe.major_experience>=thisLevel && pe.major_level<mp.getConfig().getInt("max-major-level")){
+				pe.major_experience -= thisLevel;
+				pe.major_level = pe.major_level+1;
 			}
 		}else if(professionName.equals(getMinor(playerName))){
-			pe.minor_experience = pe.minor_experience.add(exp);
-			if(pe.minor_experience.compareTo(zero)<0){
-				if(pe.minor_level.intValue()==1){
-					pe.minor_experience = zero;
+			pe.minor_experience += exp;
+			if(pe.minor_experience<0){
+				if(pe.minor_level==1){
+					pe.minor_experience = 0;
 				}else{
-					pe.minor_experience = prevLevel.add(pe.minor_experience);
-					pe.minor_level = Integer.valueOf(pe.minor_level.intValue()-1);
+					pe.minor_experience += prevLevel;
+					pe.minor_level = pe.minor_level-1;
 				}
-			}else if(pe.minor_experience.compareTo(thisLevel)>=0){
-				pe.minor_experience = pe.minor_experience.subtract(thisLevel);
-				pe.minor_level = Integer.valueOf(pe.minor_level.intValue()+1);
+			}else if(pe.minor_experience>=thisLevel && pe.minor_level<mp.getConfig().getInt("max-minor-level")){
+				pe.minor_experience -= thisLevel;
+				pe.minor_level = pe.minor_level+1;
 			}
 		}
 	}

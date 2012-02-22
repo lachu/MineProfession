@@ -3,17 +3,12 @@ miner:
    experience:
       BlockBreak:
          STONE: 1
-         GRAVEL: 1
          COAL_ORE: 1
          IRON_ORE: 1
          GOLD_ORE: 1
          LAPIS_ORE: 1
          DIAMOND_ORE: 1
          REDSTONE_ORE: 1
-      BlockPlace:
-         GRAVEL: -1
-         IRON_ORE: -1
-         GOLD_ORE: -1
    abilities:
 lumberjack:
    #description: log faster, may get extra woods.
@@ -32,12 +27,7 @@ farmer:
    experience:
       BlockBreak:
          MELON: 1
-         PUMPKIN: 1
-         SUGAR_CANE_BLOCK: 1
          WHEAT: 1
-      BlockPlace:
-         PUMPKIN: -1
-         SUGAR_CANE_BLOCK: -1
    abilities:
 pastoral:
    #description: may gain extra livestock products.

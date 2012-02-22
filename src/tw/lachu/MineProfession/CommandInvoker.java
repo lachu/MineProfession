@@ -61,7 +61,7 @@ public class CommandInvoker implements CommandExecutor{
 			}
 			String cmdKey = args[0] + " " + Integer.toString(args.length);
 			if(!commands.containsKey(cmdKey)){
-				sender.sendMessage("MineProfession: Wrong Usage.");
+				sender.sendMessage("MineProfession: Wrong Usage. try /"+cmd.getName()+" help.");
 				//MyCommand cmdInstance = new Help();
 				//return cmdInstance.execute(mp, sender, cmd, args);
 				return true;
