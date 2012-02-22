@@ -15,6 +15,7 @@ public class MineProfession extends JavaPlugin{
 	private CommandInvoker mineproadminCI;
 	public ProfessionData data;
 	public ProfessionManager pm;
+	private TraceWood tw;
 	
 	public void onEnable(){
 		//print a message.
@@ -36,6 +37,7 @@ public class MineProfession extends JavaPlugin{
 		
 		//read player data
 		data = new ProfessionData(this, getDataFile("playerTable",false), getDataFile("profession.yml",true));
+		tw = new TraceWood(this, getDataFile("WoodTrace",false));
 		
 		//schedule saveTable
 		getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Runnable(){
@@ -47,12 +49,14 @@ public class MineProfession extends JavaPlugin{
 		//register listener
 		getServer().getPluginManager().registerEvents(pm, this);
 		getServer().getPluginManager().registerEvents(new DropReplace(this), this);
+		getServer().getPluginManager().registerEvents(tw, this);
 		
 	}
 	
 	public void onDisable(){
 		log.info("MineProfession has been disabled.");
 		data.saveTable(getConfig().getBoolean("backup"));
+		tw.save();
 		saveConfig();
 	}
 	
