@@ -16,7 +16,7 @@ public class DropReplace implements Listener {
 	public DropReplace(MineProfession mp){
 		this.mp = mp;
 	}
-	@EventHandler(priority = EventPriority.HIGH)
+	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onBlockBreak(BlockBreakEvent event){
 		if(event.getBlock().getWorld()==null || event.getPlayer().getItemInHand().containsEnchantment(Enchantment.getById(33))){
 			return;

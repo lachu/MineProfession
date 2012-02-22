@@ -91,7 +91,7 @@ public class ProfessionManager implements Listener{
 	
 	@EventHandler
 	public void onEvent(BlockBreakEvent event){
-		if(!event.getPlayer().getItemInHand().containsEnchantment(Enchantment.getById(33)) || "LOG".equals(event.getBlock().getType().name())){
+		if(!event.getPlayer().getItemInHand().containsEnchantment(Enchantment.getById(33)) || mp.getConfig().getStringList("track-placement").contains(event.getBlock().getType().name())){
 			mp.log.info(event.getEventName()+": '"+event.getBlock().getType().name()+"'");
 			this.generalListener(event, event.getPlayer().getName());
 		}

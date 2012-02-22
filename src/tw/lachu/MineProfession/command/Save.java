@@ -11,6 +11,7 @@ public class Save implements MyCommand {
 
 	@Override
 	public boolean execute(MineProfession mp, CommandSender sender, Command cmd, String[] args) {
+		mp.tp.save(mp.getConfig().getBoolean("backup"));
 		if(mp.data.saveTable(mp.getConfig().getBoolean("backup"))){
 			sender.sendMessage(ChatColor.GREEN+"MineProfession: Player data is successfully saved.");
 		}else{

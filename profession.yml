@@ -1,5 +1,4 @@
 miner:
-   #description: mine faster, may get extra minerals.
    experience:
       BlockBreak:
          STONE: 1
@@ -11,7 +10,6 @@ miner:
          REDSTONE_ORE: 1
    abilities:
 lumberjack:
-   #description: log faster, may get extra woods.
    experience:
       BlockBreak:
          LOG: 1
@@ -19,16 +17,15 @@ lumberjack:
          CLAY: 1
    abilities:
 farmer:
-   #description: may gain extra crops and extra livestock products.
    experience:
       BlockBreak:
          MELON: 1
          WHEAT: 1
       PlayerShearEntity:
          CraftSheep: 1
+      #TODO: gain experience when an animal being born near by, getting milk from a cow, spawning a chicken by throwing eggs
    abilities:
 hunter:
-   #description: may get extra loot killing hostile mobs, stronger fighting mobs.
    experience:
       EntityDamageByEntity:
          CraftCaveSpider: 1
@@ -48,6 +45,6 @@ hunter:
          CraftWolf: 1
    abilities:
 enchanter:
-   #description: gain extra experience when killing mobs.
    experience:
+      #TODO: gain experience from enchanting
    abilities:
