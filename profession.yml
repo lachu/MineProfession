@@ -19,10 +19,11 @@ lumberjack:
    #description: log faster, may get extra woods.
    experience:
       BlockBreak:
-         WOOD: 1
+         LOG: 1
          LEAVES: 1
          SAND: 1
          SANDSTONE: 1
+         GRASS: 1
          DIRT: 1
          CLAY: 1
    abilities:
@@ -41,6 +42,8 @@ farmer:
 pastoral:
    #description: may gain extra livestock products.
    experience:
+      PlayerShearEntity:
+         CraftSheep: 1
    abilities:
 blacksmith:
    #description: may get an extra tool when crafting a tool.

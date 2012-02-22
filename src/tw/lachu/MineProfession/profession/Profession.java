@@ -4,29 +4,28 @@ import java.util.HashMap;
 import java.util.Set;
 
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
+import org.bukkit.event.Event;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.player.PlayerShearEntityEvent;
 
 import tw.lachu.MineProfession.MineProfession;
 
-public class Profession implements Listener{
+public class Profession{
 	
-	private final String name;
+	private final String proName;
 	private final ConfigurationSection con0;
 	private MineProfession mp;
 	
-	public HashMap<String, Double> experienceBlockBreak;
-	public HashMap<String, Double> experienceBlockPlace;
+	public HashMap<String, HashMap<String,Double>> maps;
+	
 	public Profession(MineProfession mp, String name, ConfigurationSection con0){
 		this.mp = mp;
-		this.name = name;
+		this.proName = name;
 		this.con0 = con0;
-		experienceBlockBreak = new HashMap<String,Double>();
-		experienceBlockPlace = new HashMap<String,Double>();
+		this.maps = new HashMap<String, HashMap<String,Double>>();
 	}
 	
-	@SuppressWarnings("unchecked")
 	public void load(){
 		Set<String> depth1 = con0.getKeys(false);
 		for(String str1 : depth1){
@@ -37,42 +36,52 @@ public class Profession implements Listener{
 				Set<String> depth3 = con2.getKeys(false);
 					for(String str3 : depth3){
 						try {
-							((HashMap<String, Double>)(Profession.class.getField(str1+str2).get(this))).put(str3, Double.valueOf(con2.getDouble(str3)));
+							HashMap<String, Double> map = maps.get(str1+str2);
+							if(map == null){
+								map = new HashMap<String, Double>();
+								maps.put(str1+str2, map);
+							}
+							map.put(str3, Double.valueOf(con2.getDouble(str3)));
 							mp.log.info(str1+str2+".put("+str3+", "+con2.getDouble(str3)+")");
 						} catch (IllegalArgumentException e) {
-							mp.log.info("IllegalArgumentException");
-							// TODO Auto-generated catch block
-							//e.printStackTrace();
-						} catch (IllegalAccessException e) {
-							mp.log.info("IllegalAccessException");
-							// TODO Auto-generated catch block
-							//e.printStackTrace();
-						} catch (NoSuchFieldException e) {
-							mp.log.info("NoSuchFieldException");
-							// TODO Auto-generated catch block
-							//e.printStackTrace();
+							e.printStackTrace();
 						} catch (SecurityException e) {
-							mp.log.info("SecurityException");
-							// TODO Auto-generated catch block
-							//e.printStackTrace();
+							e.printStackTrace();
 						}
 					}
 			}
 		}
 	}
 	
-	@EventHandler
-	public void onBlockBreak(BlockBreakEvent event){
-		Double gain = experienceBlockBreak.get(event.getBlock().getType().name()); 
-		if(gain!=null){
-			mp.data.gainExperience(event.getPlayer().getName(), this.name, gain.doubleValue());
+	public void onEvent(BlockBreakEvent event){
+		gainExperience(event.getPlayer().getName(), event, event.getBlock().getType().name());
+	}
+
+	public void onEvent(BlockPlaceEvent event){
+		gainExperience(event.getPlayer().getName(), event, event.getBlock().getType().name());
+	}
+	
+	public void onEvent(PlayerShearEntityEvent event){
+		gainExperience(event.getPlayer().getName(), event, event.getEntity().toString());
+	}
+	
+	public void gainExperience(String playerName, Event event, String key){
+		String name = event.getEventName();
+		name = name.substring(name.lastIndexOf('.')+1).replace("Event", "");
+		try {
+			
+			HashMap<String, Double> map = maps.get("experience"+name); 
+			if(map!=null){
+				Double gain = map.get(key);
+				if(gain!=null){
+					mp.data.gainExperience(playerName, this.proName, gain);
+				}
+			}
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+		} catch (SecurityException e) {
+			e.printStackTrace();
 		}
 	}
+
 }
-
-
-
-//BIG LISTENER - receiving all event and pass it to "Profession"s according to the player
-//Profession - dealt with it
-
-
