@@ -4,5 +4,5 @@ minor-require: 25 # the required level of major profession to have a minor profe
 max-major-level: 100 # the maximum level of major profession
 max-minor-level: 50 #the maximum level of minor profession
 drop-replace:
-   IRON_ORE: IRON_INGOT
-   GOLD_ORE: GOLD_INGOT
+   IRON_ORE: IRON_INGOT*1
+   GOLD_ORE: GOLD_INGOT*1

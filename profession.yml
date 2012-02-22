@@ -16,32 +16,36 @@ lumberjack:
       BlockBreak:
          LOG: 1
          LEAVES: 1
-         SAND: 1
-         SANDSTONE: 1
-         GRASS: 1
-         DIRT: 1
          CLAY: 1
    abilities:
 farmer:
-   #description: may gain extra crops.
+   #description: may gain extra crops and extra livestock products.
    experience:
       BlockBreak:
          MELON: 1
          WHEAT: 1
-   abilities:
-pastoral:
-   #description: may gain extra livestock products.
-   experience:
       PlayerShearEntity:
          CraftSheep: 1
-   abilities:
-blacksmith:
-   #description: may get an extra tool when crafting a tool.
-   experience:
    abilities:
 hunter:
    #description: may get extra loot killing hostile mobs, stronger fighting mobs.
    experience:
+      EntityDamageByEntity:
+         CraftCaveSpider: 1
+         CraftSkeleton: 1
+         CraftPigZombie: 1
+         CraftCreeper: 1
+         CraftSlime: 1
+         CraftZombie: 1
+         CraftSpider: 1
+         CraftEnderman: 1
+         CraftBlaze: 1
+         CraftGhast: 1
+         CraftMagmaCube: 1
+         CraftSilverfish: 1
+         CraftEnderDragon: 1
+      EntityTame:
+         CraftWolf: 1
    abilities:
 enchanter:
    #description: gain extra experience when killing mobs.

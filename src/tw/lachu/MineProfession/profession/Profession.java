@@ -4,8 +4,11 @@ import java.util.HashMap;
 import java.util.Set;
 
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityTameEvent;
 import org.bukkit.event.player.PlayerShearEntityEvent;
 
 import tw.lachu.MineProfession.MineProfession;
@@ -41,7 +44,6 @@ public class Profession{
 								maps.put(str1+str2, map);
 							}
 							map.put(str3, Double.valueOf(con2.getDouble(str3)));
-							mp.log.info(str1+str2+".put("+str3+", "+con2.getDouble(str3)+")");
 						} catch (IllegalArgumentException e) {
 							e.printStackTrace();
 						} catch (SecurityException e) {
@@ -58,6 +60,20 @@ public class Profession{
 	
 	public void onEvent(PlayerShearEntityEvent event){
 		gainExperience(event.getPlayer().getName(), event, event.getEntity().toString());
+	}
+
+	public void onEvent(EntityDamageByEntityEvent event){
+		if(event.getDamager() instanceof Player){
+			for(int i=event.getDamage();i>0;--i){
+				gainExperience(((Player)event.getDamager()).getName(), event, event.getEntity().toString().split("\\{")[0]);
+			}
+		}
+	}
+	
+	public void onEvent(EntityTameEvent event){
+		if(event.getOwner() instanceof Player){
+			gainExperience(((Player)event.getOwner()).getName(), event, event.getEntity().toString().split("\\{")[0]);
+		}
 	}
 	
 	public void gainExperience(String playerName, Event event, String key){

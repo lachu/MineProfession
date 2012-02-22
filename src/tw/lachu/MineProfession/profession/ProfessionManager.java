@@ -10,10 +10,14 @@ import java.util.Set;
 
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityTameEvent;
 import org.bukkit.event.player.PlayerShearEntityEvent;
 
 import tw.lachu.MineProfession.MineProfession;
@@ -86,14 +90,32 @@ public class ProfessionManager implements Listener{
 	
 	@EventHandler
 	public void onEvent(BlockBreakEvent event){
-		mp.log.info(event.getEventName()+": '"+event.getBlock().getType().name()+"'");
-		this.generalListener(event, event.getPlayer().getName());
+		if(!event.getPlayer().getItemInHand().containsEnchantment(Enchantment.getById(33))){
+			mp.log.info(event.getEventName()+": '"+event.getBlock().getType().name()+"'");
+			this.generalListener(event, event.getPlayer().getName());
+		}
 	}
 	
 	@EventHandler
 	public void onEvent(PlayerShearEntityEvent event){
 		mp.log.info(event.getEventName()+": '"+event.getEntity().toString()+"'");
 		this.generalListener(event, event.getPlayer().getName());
+	}
+	
+	@EventHandler
+	public void onEvent(EntityDamageByEntityEvent event){
+		if(event.getDamager() instanceof Player){
+			mp.log.info(event.getEventName()+": '"+event.getEntity().toString()+" "+event.getDamager().toString()+"'");
+			this.generalListener(event, ((Player)event.getDamager()).getName());
+		}
+	}
+	
+	@EventHandler
+	public void onEvent(EntityTameEvent event){
+		if(event.getOwner() instanceof Player){
+			mp.log.info(event.getEventName()+": '"+event.getEntity().toString()+" "+event.getOwner().toString()+"'");
+			this.generalListener(event, ((Player)event.getOwner()).getName());
+		}
 	}
 	
 }
