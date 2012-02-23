@@ -1,13 +1,6 @@
 package tw.lachu.MineProfession;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -24,99 +17,53 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.inventory.ItemStack;
 
-public class TrackPlacement implements Listener{
-	private HashMap<Integer,HashMap<Integer,HashSet<Integer>>> humanPlace;
+public class TrackPlacement extends SerialData implements Listener{
+	private HashMap<Integer,HashMap<Integer,HashSet<Integer>>> data;
 	private MineProfession mp;
 	private File trackFile;
 	
 	@SuppressWarnings("unchecked")
-	public TrackPlacement(MineProfession mp, File woodFile){
+	public TrackPlacement(MineProfession mp, File file){
 		this.mp = mp;
-		this.trackFile = woodFile;
-		if(woodFile.exists()){
-			try {
-				ObjectInputStream ois = new ObjectInputStream(new FileInputStream(this.trackFile));
-				Object result = ois.readObject();
-				ois.close();
-				humanPlace = (HashMap<Integer,HashMap<Integer,HashSet<Integer>>>)result;
-			} catch (FileNotFoundException e) {
-				humanPlace = new HashMap<Integer,HashMap<Integer,HashSet<Integer>>>();
-				e.printStackTrace();
-			} catch (IOException e) {
-				humanPlace = new HashMap<Integer,HashMap<Integer,HashSet<Integer>>>();
-				e.printStackTrace();
-			} catch (ClassNotFoundException e) {
-				humanPlace = new HashMap<Integer,HashMap<Integer,HashSet<Integer>>>();
-				e.printStackTrace();
-			}
+		this.trackFile = file;
+		Object obj = super.load(trackFile);
+		if(obj!=null){
+			data = (HashMap<Integer,HashMap<Integer,HashSet<Integer>>>)obj;
+			mp.log.info("MineProfession: Finish reading track placement data.");
 		}else{
-			humanPlace = new HashMap<Integer,HashMap<Integer,HashSet<Integer>>>();
+			data = new HashMap<Integer,HashMap<Integer,HashSet<Integer>>>();
+			mp.log.info("MineProfession: Cannot read track placement data from "+trackFile.toString());
 		}
 	}
 	
 	public void save(boolean backup){
 		
-		{
-			Set<Integer> keys1 = humanPlace.keySet();
+		{ //gc
+			Set<Integer> keys1 = data.keySet();
 			for (Integer key1 : keys1) {
-				Set<Integer> keys2 = humanPlace.get(key1).keySet();
+				Set<Integer> keys2 = data.get(key1).keySet();
 				for (Integer key2 : keys2) {
-					if (humanPlace.get(key1).get(key2).isEmpty()) {
-						humanPlace.get(key1).remove(key2);
+					if (data.get(key1).get(key2).isEmpty()) {
+						data.get(key1).remove(key2);
 					}
 				}
-				if (humanPlace.get(key1).isEmpty()) {
-					humanPlace.remove(key1);
+				if (data.get(key1).isEmpty()) {
+					data.remove(key1);
 				}
 			}
 		}
 		
-		
-		ObjectOutputStream oos;
-		try {
-			oos = new ObjectOutputStream(new FileOutputStream(this.trackFile));
-			oos.writeObject(humanPlace);
-			oos.flush();
-			oos.close();
+		if(super.save(data, trackFile)){
 			mp.log.info("MineProfession: Placement tracking data saved.");
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-			mp.log.info("MineProfession: Cannot save placement tracking data to "+trackFile.toString());
-		} catch (IOException e) {
-			e.printStackTrace();
+		}else{
 			mp.log.info("MineProfession: Cannot save placement tracking data to "+trackFile.toString());
 		}
+		
 		if(backup){
-			Calendar currentTime = Calendar.getInstance();
-			StringBuilder sb = new StringBuilder();
-			sb.append(currentTime.get(Calendar.YEAR));
-			sb.append("_");
-			sb.append(currentTime.get(Calendar.MONTH+1));
-			sb.append("_");
-			sb.append(currentTime.get(Calendar.DATE));
-			sb.append("_");
-			sb.append(currentTime.get(Calendar.HOUR_OF_DAY));
-			sb.append("_");
-			sb.append(currentTime.get(Calendar.MINUTE));
-			sb.append("_");
-			sb.append(currentTime.get(Calendar.SECOND));
-			sb.append(".trackPlacement");
-			File backDir = new File(trackFile.getParentFile(),"backup");
-			backDir.mkdir();
-			File backFile = new File(backDir, sb.toString() );
-			
-			try {
-				oos = new ObjectOutputStream(new FileOutputStream(backFile));
-				oos.writeObject(this.humanPlace);
-				oos.flush();
-				oos.close();
+			if(super.save(data, super.getBackupFile("trackPlacement", trackFile))){
 				mp.log.info("MineProfession: Placement tracking data backup saved.");
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-				mp.log.info("MineProfession: Backup Placement tracking data to "+backFile.toString()+" failed.");
-			} catch (IOException e) {
-				e.printStackTrace();
-				mp.log.info("MineProfession: Backup Placement tracking data to "+backFile.toString()+" failed.");
+			}else{
+				mp.log.info("MineProfession: Cannot save placement tracking data backup.");
 			}
 		}
 	}
@@ -124,7 +71,7 @@ public class TrackPlacement implements Listener{
 	public synchronized boolean isHumanPlaced(int x,int y,int z){
 		HashMap<Integer,HashSet<Integer>> xMap;
 		HashSet<Integer> zMap;
-		return (xMap=humanPlace.get(x))!=null && (zMap=xMap.get(z))!=null && zMap.contains(y);
+		return (xMap=data.get(x))!=null && (zMap=xMap.get(z))!=null && zMap.contains(y);
 	}
 	
 	public boolean isHumanPlaced(Block block){
@@ -132,10 +79,10 @@ public class TrackPlacement implements Listener{
 	}
 	
 	private synchronized void setHumanPlaced(int x,int y,int z){
-		HashMap<Integer,HashSet<Integer>> xMap = humanPlace.get(x);
+		HashMap<Integer,HashSet<Integer>> xMap = data.get(x);
 		if(xMap==null){
 			xMap = new HashMap<Integer,HashSet<Integer>>();
-			humanPlace.put(x, xMap);
+			data.put(x, xMap);
 		}
 		HashSet<Integer> zMap = xMap.get(z);
 		if(zMap==null){
@@ -146,7 +93,7 @@ public class TrackPlacement implements Listener{
 	}
 	
 	private synchronized void unsetHumanPlaced(int x,int y,int z){
-		humanPlace.get(x).get(z).remove(y);
+		data.get(x).get(z).remove(y);
 	}
 	
 	@EventHandler(priority=EventPriority.HIGHEST)

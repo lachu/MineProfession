@@ -1,21 +1,16 @@
 package tw.lachu.MineProfession;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Set;
 
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 
-public class ProfessionData {
+public class ProfessionData extends SerialData{
 	public static class PlayerEntry implements Serializable{
 		private static final long serialVersionUID = 1L;
 		String major_profession;
@@ -36,25 +31,13 @@ public class ProfessionData {
 		this.mp = mp;
 		this.dbFile = dataFile;
 		
-		if(!dbFile.exists()){
-			mp.log.info("MineProfession: player data not exist. create new.");
-			data = new HashMap<String,PlayerEntry>();
+		Object obj = super.load(dbFile);
+		if(obj != null){
+			data = (HashMap<String,PlayerEntry>)obj;
+			mp.log.info("MineProfession: Finish reading player data.");
 		}else{
-			ObjectInputStream ois;
-			try {
-				mp.log.info("MineProfession: Going to read player data.");
-				ois = new ObjectInputStream(new FileInputStream(dbFile));
-				Object result = ois.readObject();
-				ois.close();
-				data = (HashMap<String,PlayerEntry>)result;
-				mp.log.info("MineProfession: Finish reading player data.");
-			} catch (FileNotFoundException e) {
-				mp.log.info("MineProfession: Cannot read player data from "+dbFile.toString());
-			} catch (IOException e) {
-				mp.log.info("MineProfession: Cannot read player data from "+dbFile.toString());
-			} catch (ClassNotFoundException e) {
-				mp.log.info("MineProfession: Cannot read player data from "+dbFile.toString());
-			}
+			data = new HashMap<String,PlayerEntry>();
+			mp.log.info("MineProfession: Cannot read player data from "+dbFile.toString());
 		}
 		
 		YamlConfiguration proYaml = new YamlConfiguration();
@@ -77,59 +60,18 @@ public class ProfessionData {
 	public synchronized boolean saveTable(boolean backup){
 		mp.log.info("MineProfession: Going to save player data.");
 		boolean success = false;
-		{
-			Set<String> set = data.keySet();
-			for(String str:set){
-				mp.log.info(str+" "+data.get(str).major_profession);
-			}
+		
+		if(super.save(data, dbFile)){
+			mp.log.info("MineProfession: player data saved.");
+		}else{
+			mp.log.info("MineProfession: Cannot save player data to "+dbFile.toString());
 		}
 		
-		try {
-			ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(dbFile));
-			oos.writeObject(this.data);
-			oos.flush();
-			oos.close();
-			mp.log.info("MineProfession: player data saved.");
-			success = true;
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-			mp.log.info("MineProfession: Cannot save player data to "+dbFile.toString());
-		} catch (IOException e) {
-			e.printStackTrace();
-			mp.log.info("MineProfession: Cannot save player data to "+dbFile.toString());
-		}
 		if(backup){
-			Calendar currentTime = Calendar.getInstance();
-			StringBuilder sb = new StringBuilder();
-			sb.append(currentTime.get(Calendar.YEAR));
-			sb.append("_");
-			sb.append(currentTime.get(Calendar.MONTH+1));
-			sb.append("_");
-			sb.append(currentTime.get(Calendar.DATE));
-			sb.append("_");
-			sb.append(currentTime.get(Calendar.HOUR_OF_DAY));
-			sb.append("_");
-			sb.append(currentTime.get(Calendar.MINUTE));
-			sb.append("_");
-			sb.append(currentTime.get(Calendar.SECOND));
-			sb.append(".playerTable");
-			File backDir = new File(dbFile.getParentFile(),"backup");
-			backDir.mkdir();
-			File backFile = new File(backDir, sb.toString() );
-			ObjectOutputStream oos;
-			
-			try {
-				oos = new ObjectOutputStream(new FileOutputStream(backFile));
-				oos.writeObject(this.data);
-				oos.flush();
-				oos.close();
-				mp.log.info("MineProfession: Player data backup saved.");
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-				mp.log.info("MineProfession: Backup player data to "+backFile.toString()+" failed.");
-			} catch (IOException e) {
-				e.printStackTrace();
-				mp.log.info("MineProfession: Backup player data to "+backFile.toString()+" failed.");
+			if(super.save(data, super.getBackupFile("playerTable", dbFile))){
+				mp.log.info("MineProfession: player data backup saved.");
+			}else{
+				mp.log.info("MineProfession: Cannot save player data backup.");
 			}
 		}
 		return success;

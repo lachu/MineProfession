@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.bukkit.configuration.InvalidConfigurationException;
@@ -16,6 +18,8 @@ import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.enchantment.EnchantItemEvent;
+import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityTameEvent;
 import org.bukkit.event.player.PlayerShearEntityEvent;
@@ -119,4 +123,39 @@ public class ProfessionManager implements Listener{
 		}
 	}
 	
+	@EventHandler
+	public void onEvent(CreatureSpawnEvent event){
+		if(event.getSpawnReason().name().equals("CUSTOM") && event.getLocation().getWorld()!=null){
+			
+			List<Player> players = event.getLocation().getWorld().getPlayers();
+			Player nearest = null;
+			double distance = 0;
+			for(Player player:players){
+				double temp = player.getLocation().distance(event.getLocation());
+				if(nearest==null || temp < distance){
+					distance = temp;
+					nearest = player;
+				}
+			}
+			if(nearest!=null){
+			 	Profession major = proMap.get(mp.data.getMajor(nearest.getName()));
+				Profession minor = proMap.get(mp.data.getMinor(nearest.getName()));
+				if(major!=null){
+					major.onEvent(event, nearest);
+				}
+				if(minor!=null){
+					minor.onEvent(event, nearest);
+				}
+			}
+		}
+	}
+	
+	@EventHandler
+	public void onEvent(EnchantItemEvent event){
+		Map<Enchantment, Integer> map = event.getEnchantsToAdd();
+		Set<Enchantment> set = map.keySet();
+		for(Enchantment ench : set){
+			mp.log.info(ench.getName()+", "+map.get(ench)+", "+event.getItem().getType().name());
+		}
+	}
 }

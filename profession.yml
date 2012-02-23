@@ -23,7 +23,12 @@ farmer:
          WHEAT: 1
       PlayerShearEntity:
          CraftSheep: 1
-      #TODO: gain experience when an animal being born near by, getting milk from a cow, spawning a chicken by throwing eggs
+      #TODO: gain experience when an animal being born near by
+      CreatureSpawn:
+         SHEEP: 1
+         PIG: 1
+         CHICKEN: 1
+         COW: 1
    abilities:
 hunter:
    experience:
@@ -46,5 +51,37 @@ hunter:
    abilities:
 enchanter:
    experience:
-      #TODO: gain experience from enchanting
+      EnchantItem:
+         HELMET: 1.25
+         CHESTPLATE: 2 
+         LEGGINGS: 1.75
+         BOOTS: 1
+         WOOD: 1
+         LEATHER: 1
+         STONE: 1.5
+         IRON: 2
+         CHAINMAIL: 2
+         DIAMOND: 3
+         GOLD: 3
+         DIG_SPEED: 1
+         SILK_TOUCH: 2
+         LOOT_BONUS_BLOCKS: 4
+         DURABILITY: 1
+         FIRE_ASPECT: 
+         KNOCKBACK:
+         DAMAGE_ARTHROPODS:
+         DAMAGE_ALL:
+         DAMAGE_UNDEAD:
+         LOOT_BONUS_MOBS:
+         ARROW_INFINITE:
+         ARROW_DAMAGE:
+         ARROW_KNOCKBACK:
+         ARROW_FIRE:
+         PROTECTION_ENVIRONMENTAL:
+         PROTECTION_FIRE:
+         PROTECTION_PROJECTILE:
+         PROTECTION_FALL:
+         PROTECTION_EXPLOSIONS:
+         WATER_WORKER:
+         OXYGEN: 
    abilities:
