@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
@@ -13,6 +14,7 @@ import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Tameable;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -20,6 +22,8 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.enchantment.EnchantItemEvent;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityTameEvent;
 import org.bukkit.event.player.PlayerShearEntityEvent;
 
@@ -27,6 +31,14 @@ import tw.lachu.MineProfession.MineProfession;
 
 
 public class ProfessionManager implements Listener{
+	
+	private static List<String> humanKill;
+	{
+		humanKill = new ArrayList<String>();
+		humanKill.add("CUSTOM");
+		humanKill.add("ENTITY_ATTACK");
+		humanKill.add("PROJECTILE");
+	}
 	
 	private File proFile;
 	private MineProfession mp;
@@ -115,10 +127,47 @@ public class ProfessionManager implements Listener{
 	}
 	
 	@EventHandler
+	public void onEvent(EntityDamageEvent event){
+		if(event.getEntity() instanceof Tameable && ((Tameable)event.getEntity()).isTamed() && ((Tameable)event.getEntity()).getOwner() instanceof Player){
+			Player player = (Player)((Tameable)event.getEntity()).getOwner();
+			String playerName = player.getName();
+		 	Profession major = proMap.get(mp.data.getMajor(playerName));
+			Profession minor = proMap.get(mp.data.getMinor(playerName));
+			if(major != null){
+				major.onEvent(event, player);
+			}
+			if(minor != null){
+				minor.onEvent(event, player);
+			}
+		}
+	}
+	
+	@EventHandler
 	public void onEvent(EntityTameEvent event){
 		if(event.getOwner() instanceof Player){
 			//mp.log.info(event.getEventName()+": '"+event.getEntity().toString()+" "+event.getOwner().toString()+"'");
 			this.generalListener(event, ((Player)event.getOwner()).getName());
+		}
+	}
+	
+	@EventHandler
+	public void onEvent(EntityDeathEvent event){
+		if(humanKill.contains(event.getEntity().getLastDamageCause().getCause().name()) && event.getEntity().getLocation().getWorld()!=null){
+			List<Player> players = event.getEntity().getLocation().getWorld().getPlayers();
+			for(Player player:players){
+				if(player.getLocation().distance(event.getEntity().getLocation())<10){
+					if(player!=null){
+					 	Profession major = proMap.get(mp.data.getMajor(player.getName()));
+						Profession minor = proMap.get(mp.data.getMinor(player.getName()));
+						if(major!=null){
+							major.onEvent(event, player);
+						}
+						if(minor!=null){
+							minor.onEvent(event, player);
+						}
+					}
+				}
+			}
 		}
 	}
 	
@@ -151,23 +200,18 @@ public class ProfessionManager implements Listener{
 		if(event.getSpawnReason().name().equals("CUSTOM") && event.getLocation().getWorld()!=null){
 			
 			List<Player> players = event.getLocation().getWorld().getPlayers();
-			Player nearest = null;
-			double distance = 0;
 			for(Player player:players){
-				double temp = player.getLocation().distance(event.getLocation());
-				if(nearest==null || temp < distance){
-					distance = temp;
-					nearest = player;
-				}
-			}
-			if(nearest!=null){
-			 	Profession major = proMap.get(mp.data.getMajor(nearest.getName()));
-				Profession minor = proMap.get(mp.data.getMinor(nearest.getName()));
-				if(major!=null){
-					major.onEvent(event, nearest);
-				}
-				if(minor!=null){
-					minor.onEvent(event, nearest);
+				if(player.getLocation().distance(event.getLocation())<10){
+					if(player!=null){
+					 	Profession major = proMap.get(mp.data.getMajor(player.getName()));
+						Profession minor = proMap.get(mp.data.getMinor(player.getName()));
+						if(major!=null){
+							major.onEvent(event, player);
+						}
+						if(minor!=null){
+							minor.onEvent(event, player);
+						}
+					}
 				}
 			}
 		}

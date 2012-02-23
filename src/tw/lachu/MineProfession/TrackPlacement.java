@@ -17,6 +17,8 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.inventory.ItemStack;
 
+import tw.lachu.MineProfession.util.SerialData;
+
 public class TrackPlacement extends SerialData implements Listener{
 	private HashMap<Integer,HashMap<Integer,HashSet<Integer>>> data;
 	private MineProfession mp;

@@ -9,6 +9,8 @@ miner:
          DIAMOND_ORE: 1
          REDSTONE_ORE: 1
    abilities:
+      BlockBreakFortune: [STONE, COAL_ORE, IRON_ORE, GOLD_ORE, LAPIS_ORE, DIAMOND_ORE, REDSTONE_ORE]
+   #Extra drop when mining BlockBreakFortune
 lumberjack:
    experience:
       BlockBreak:
@@ -16,20 +18,28 @@ lumberjack:
          LEAVES: 1
          CLAY: 1
    abilities:
+      BlockBreakFortune: [LOG, LEAVES, CLAY]
+   #Extra drop when logging BlockBreakFortune
 farmer:
    experience:
       BlockBreak:
          MELON: 1
          WHEAT: 1
+         PUMPKIN: 1
+         SUGAR_CANE_BLOCK: 1
       PlayerShearEntity:
          CraftSheep: 1
-      #TODO: gain experience when an animal being born near by
       CreatureSpawn:
          SHEEP: 1
          PIG: 1
          CHICKEN: 1
          COW: 1
    abilities:
+      BlockBreakFortune: [MELON, WHEAT, PUMKIN, SUGAR_CANE_BLOCK]
+      PlayerShearEntityFortune: 3
+      EntityDeathFortune: [CraftPig, CraftCow, CraftChicken]
+   #Extra wool shearing sheep, extra crops, extra leather, beef, pork, chicken
+   #BlockBreakFortune PlayerShearEntityFortune
 hunter:
    experience:
       EntityDamageByEntity:
@@ -49,6 +59,9 @@ hunter:
       EntityTame:
          CraftWolf: 1
    abilities:
+      EntityDeathFortune: [CraftCaveSpider, CraftSkeleton, CraftPigZombie, CraftCreeper, CraftSlime, CraftZombie, CraftSpider, CraftEnderman, CraftBlaze, CraftGhast, CraftMagmaCube, CraftSilverfish, CraftEnderDragon]
+      ProtectTamed: true
+   #Extra loot from mobs, strong wolf
 enchanter:
    experience:
       EnchantItem:
@@ -91,3 +104,5 @@ enchanter:
          WATER_WORKER: 5
          OXYGEN: 5
    abilities:
+      BetterEnchantment: true
+   #better enchantment

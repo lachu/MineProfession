@@ -10,6 +10,8 @@ import java.util.Set;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 
+import tw.lachu.MineProfession.util.SerialData;
+
 public class ProfessionData extends SerialData{
 	public static class PlayerEntry implements Serializable{
 		private static final long serialVersionUID = 1L;
@@ -245,7 +247,24 @@ public class ProfessionData extends SerialData{
 		}
 	}
 	
-	public int getExperienceForLevel(int level){
+	public synchronized double getProfessionPower(String playerName, String professionName){
+		PlayerEntry pe = data.get(playerName.toLowerCase());
+		if(pe==null){
+			return 0;
+		}
+		if(professionName.equals(pe.major_profession)){
+			return powerFunction(pe.major_level);
+		}else if(professionName.equals(pe.minor_profession)){
+			return powerFunction(pe.minor_level);
+		}
+		return 0;
+	}
+	
+	private double powerFunction(int level){
+		return ((double)level)/100;
+	}
+	
+	public static int getExperienceForLevel(int level){
 		return 10*level;
 	}
 }
