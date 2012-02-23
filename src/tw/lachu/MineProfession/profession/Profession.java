@@ -1,9 +1,11 @@
 package tw.lachu.MineProfession.profession;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -17,35 +19,35 @@ import tw.lachu.MineProfession.MineProfession;
 
 public class Profession{
 	
-	private final String proName;
-	private final ConfigurationSection con0;
+	private final String professionName;
+	private final ConfigurationSection config;
 	private MineProfession mp;
 	
-	public HashMap<String, HashMap<String,Double>> maps;
+	public HashMap<String, HashMap<String,Double>> mapOfMaps;
 	
 	public Profession(MineProfession mp, String name, ConfigurationSection con0){
 		this.mp = mp;
-		this.proName = name;
-		this.con0 = con0;
-		this.maps = new HashMap<String, HashMap<String,Double>>();
+		this.professionName = name;
+		this.config = con0;
+		this.mapOfMaps = new HashMap<String, HashMap<String,Double>>();
 	}
 	
 	public void load(){
-		Set<String> depth1 = con0.getKeys(false);
+		Set<String> depth1 = config.getKeys(false);
 		for(String str1 : depth1){
-			ConfigurationSection con1 = con0.getConfigurationSection(str1);
-			Set<String> depth2 = con1.getKeys(false);
+			ConfigurationSection config1 = config.getConfigurationSection(str1);
+			Set<String> depth2 = config1.getKeys(false);
 			for(String str2 : depth2){
-				ConfigurationSection con2 = con1.getConfigurationSection(str2);
-				Set<String> depth3 = con2.getKeys(false);
+				ConfigurationSection config2 = config1.getConfigurationSection(str2);
+				Set<String> depth3 = config2.getKeys(false);
 				for(String str3 : depth3){
 					try {
-						HashMap<String, Double> map = maps.get(str1+str2);
+						HashMap<String, Double> map = mapOfMaps.get(str1+str2);
 						if(map == null){
 							map = new HashMap<String, Double>();
-							maps.put(str1+str2, map);
+							mapOfMaps.put(str1+str2, map);
 						}
-						map.put(str3, Double.valueOf(con2.getDouble(str3)));
+						map.put(str3, Double.valueOf(config2.getDouble(str3)));
 					} catch (IllegalArgumentException e) {
 						e.printStackTrace();
 					} catch (SecurityException e) {
@@ -83,7 +85,20 @@ public class Profession{
 	}
 
 	public void onEvent(EnchantItemEvent event){
+		Map<Enchantment, Integer> levelMap = event.getEnchantsToAdd();
+		Map<String, Double> expMap = mapOfMaps.get("experienceEnchantItem");
+		Set<Enchantment> set = levelMap.keySet();
+		double exp = 0;
+		for(Enchantment ench:set){
+			exp += expMap.get(ench.getName()) * levelMap.get(ench);
+		}
+		exp *= expMap.get("CONST");
 		
+		String[] materialNames = event.getItem().getType().name().split("_");
+		for(String material:materialNames){
+			exp *= expMap.get(material);
+		}
+		mp.data.gainExperience(event.getEnchanter().getName(), this.professionName, exp);
 	}
 	
 	public void gainExperience(String playerName, Event event, String key){
@@ -91,11 +106,11 @@ public class Profession{
 		name = name.substring(name.lastIndexOf('.')+1).replace("Event", "");
 		try {
 			
-			HashMap<String, Double> map = maps.get("experience"+name); 
+			HashMap<String, Double> map = mapOfMaps.get("experience"+name); 
 			if(map!=null){
 				Double gain = map.get(key);
 				if(gain!=null){
-					mp.data.gainExperience(playerName, this.proName, gain);
+					mp.data.gainExperience(playerName, this.professionName, gain);
 				}
 			}
 		} catch (IllegalArgumentException e) {

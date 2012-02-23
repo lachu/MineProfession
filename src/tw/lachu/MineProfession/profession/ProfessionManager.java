@@ -7,7 +7,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.bukkit.configuration.InvalidConfigurationException;
@@ -96,21 +95,21 @@ public class ProfessionManager implements Listener{
 	@EventHandler
 	public void onEvent(BlockBreakEvent event){
 		if(!event.getPlayer().getItemInHand().containsEnchantment(Enchantment.getById(33)) || mp.getConfig().getStringList("track-placement").contains(event.getBlock().getType().name())){
-			mp.log.info(event.getEventName()+": '"+event.getBlock().getType().name()+"'");
+			//mp.log.info(event.getEventName()+": '"+event.getBlock().getType().name()+"'");
 			this.generalListener(event, event.getPlayer().getName());
 		}
 	}
 	
 	@EventHandler
 	public void onEvent(PlayerShearEntityEvent event){
-		mp.log.info(event.getEventName()+": '"+event.getEntity().toString()+"'");
+		//mp.log.info(event.getEventName()+": '"+event.getEntity().toString()+"'");
 		this.generalListener(event, event.getPlayer().getName());
 	}
 	
 	@EventHandler
 	public void onEvent(EntityDamageByEntityEvent event){
 		if(event.getDamager() instanceof Player){
-			mp.log.info(event.getEventName()+": '"+event.getEntity().toString()+" "+event.getDamager().toString()+"'");
+			//mp.log.info(event.getEventName()+": '"+event.getEntity().toString()+" "+event.getDamager().toString()+"'");
 			this.generalListener(event, ((Player)event.getDamager()).getName());
 		}
 	}
@@ -118,9 +117,33 @@ public class ProfessionManager implements Listener{
 	@EventHandler
 	public void onEvent(EntityTameEvent event){
 		if(event.getOwner() instanceof Player){
-			mp.log.info(event.getEventName()+": '"+event.getEntity().toString()+" "+event.getOwner().toString()+"'");
+			//mp.log.info(event.getEventName()+": '"+event.getEntity().toString()+" "+event.getOwner().toString()+"'");
 			this.generalListener(event, ((Player)event.getOwner()).getName());
 		}
+	}
+	
+	@EventHandler
+	public void onEvent(EnchantItemEvent event){
+		/*{
+			Map<Enchantment, Integer> map = event.getEnchantsToAdd();
+			Set<Enchantment> set = map.keySet();
+			StringBuilder sb = new StringBuilder();
+			sb.append(event.getEventName());
+			sb.append(": ");
+			sb.append(event.getEnchanter().getName());
+			sb.append(", ");
+			sb.append(event.getItem().getType().name());
+
+			for (Enchantment ench : set) {
+				sb.append(", ");
+				sb.append(ench.getName());
+				sb.append(" ");
+				sb.append(map.get(ench));
+			}
+
+			mp.log.info(sb.toString());
+		}*/
+		this.generalListener(event, event.getEnchanter().getName());
 	}
 	
 	@EventHandler
@@ -147,15 +170,6 @@ public class ProfessionManager implements Listener{
 					minor.onEvent(event, nearest);
 				}
 			}
-		}
-	}
-	
-	@EventHandler
-	public void onEvent(EnchantItemEvent event){
-		Map<Enchantment, Integer> map = event.getEnchantsToAdd();
-		Set<Enchantment> set = map.keySet();
-		for(Enchantment ench : set){
-			mp.log.info(ench.getName()+", "+map.get(ench)+", "+event.getItem().getType().name());
 		}
 	}
 }

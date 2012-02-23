@@ -52,10 +52,16 @@ hunter:
 enchanter:
    experience:
       EnchantItem:
+         CONST: 10
          HELMET: 1.25
          CHESTPLATE: 2 
          LEGGINGS: 1.75
          BOOTS: 1
+         BOW: 1
+         SWORD: 1
+         SPADE: 1
+         AXE: 1
+         PICKAXE: 1
          WOOD: 1
          LEATHER: 1
          STONE: 1.5
@@ -64,24 +70,24 @@ enchanter:
          DIAMOND: 3
          GOLD: 3
          DIG_SPEED: 1
-         SILK_TOUCH: 2
-         LOOT_BONUS_BLOCKS: 4
-         DURABILITY: 1
-         FIRE_ASPECT: 
-         KNOCKBACK:
-         DAMAGE_ARTHROPODS:
-         DAMAGE_ALL:
-         DAMAGE_UNDEAD:
-         LOOT_BONUS_MOBS:
-         ARROW_INFINITE:
-         ARROW_DAMAGE:
-         ARROW_KNOCKBACK:
-         ARROW_FIRE:
-         PROTECTION_ENVIRONMENTAL:
-         PROTECTION_FIRE:
-         PROTECTION_PROJECTILE:
-         PROTECTION_FALL:
-         PROTECTION_EXPLOSIONS:
-         WATER_WORKER:
-         OXYGEN: 
+         SILK_TOUCH: 10
+         LOOT_BONUS_BLOCKS: 5
+         DURABILITY: 2
+         FIRE_ASPECT: 5 
+         KNOCKBACK: 2
+         DAMAGE_ARTHROPODS: 2
+         DAMAGE_ALL: 1
+         DAMAGE_UNDEAD: 2
+         LOOT_BONUS_MOBS: 5
+         ARROW_INFINITE: 10
+         ARROW_DAMAGE: 1
+         ARROW_KNOCKBACK: 5
+         ARROW_FIRE: 5
+         PROTECTION_ENVIRONMENTAL: 1
+         PROTECTION_FIRE: 2
+         PROTECTION_PROJECTILE: 2
+         PROTECTION_FALL: 2
+         PROTECTION_EXPLOSIONS: 5
+         WATER_WORKER: 5
+         OXYGEN: 5
    abilities:
