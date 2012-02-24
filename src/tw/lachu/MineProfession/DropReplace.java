@@ -1,8 +1,5 @@
 package tw.lachu.MineProfession;
 
-import java.util.Collection;
-
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.event.EventHandler;
@@ -21,23 +18,19 @@ public class DropReplace implements Listener {
 		if(event.getBlock().getWorld()==null || event.getPlayer().getItemInHand().containsEnchantment(Enchantment.getById(33))){
 			return;
 		}
-		Collection<ItemStack> drops = event.getBlock().getDrops(event.getPlayer().getItemInHand());
-		Location loc = event.getBlock().getLocation();
-		for(ItemStack drop:drops){
-			String replace;
-			String time;
-			replace = mp.getConfig().getString("drop-replace."+drop.getType().name());
-			ItemStack item;
-			if(replace!=null){
-				String[] tempArray = replace.split("\\*");
-				replace = tempArray[0];
-				time = tempArray[1];
-				item = new ItemStack(Material.getMaterial(replace), drop.getAmount()*Integer.valueOf(time));
-			}else{
-				item = drop;
-			}
-			loc.getWorld().dropItem(loc, item);
+		if(mp.getConfig().getString("drop-replace."+event.getBlock().getType().name())==null || mp.getConfig().getString("drop-replace."+event.getBlock().getType().name()).length()==0){
+			return;
 		}
-		event.getBlock().setType(Material.getMaterial("AIR"));
+		
+		String[] items = mp.getConfig().getString("drop-replace."+event.getBlock().getType().name()).split("&");
+		for(String item:items){
+			item = item.trim();
+			String[] temp = item.split("\\*");
+			String replace = temp[0].trim();
+			String time = temp[1].trim();
+			ItemStack drop = new ItemStack(Material.getMaterial(replace), Integer.valueOf(time));
+			event.getBlock().getLocation().getWorld().dropItem(event.getBlock().getLocation(), drop);
+		}
+		
 	}
 }

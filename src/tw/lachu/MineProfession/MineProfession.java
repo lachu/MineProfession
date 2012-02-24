@@ -49,7 +49,7 @@ public class MineProfession extends JavaPlugin{
 		
 		//register listener
 		getServer().getPluginManager().registerEvents(pm, this);
-		getServer().getPluginManager().registerEvents(new DropReplace(this), this);
+		//getServer().getPluginManager().registerEvents(new DropReplace(this), this);
 		getServer().getPluginManager().registerEvents(tp, this);
 		
 	}

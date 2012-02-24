@@ -1,11 +1,14 @@
 package tw.lachu.MineProfession.profession;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 
+import org.bukkit.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -29,6 +32,7 @@ public class Profession{
 	private final String professionName;
 	private final ConfigurationSection config;
 	private MineProfession mp;
+	
 	
 	private HashMap<String, HashMap<String,Double>> mapOfExpMaps;
 	private HashMap<String, List<String>> abilityMap;
@@ -69,7 +73,6 @@ public class Profession{
 	public void onEvent(BlockBreakEvent event){
 		gainExperience(event.getPlayer().getName(), event, event.getBlock().getType().name());
 		
-		
 		if(abilityMap.get("BlockBreakFortune")!=null && abilityMap.get("BlockBreakFortune").contains(event.getBlock().getType().name())){
 			Collection<ItemStack> drops = event.getBlock().getDrops(event.getPlayer().getItemInHand());
 			for(ItemStack drop:drops){
@@ -77,7 +80,7 @@ public class Profession{
 				int max = (int)(Math.ceil(2*expect)+0.1);
 				double probability = expect*2/max/(max+1);
 				int happen = Chance.contribute(probability, max);
-				////mp.log.info(mp.data.getProfessionPower(event.getPlayer().getName(), this.professionName)+" "+drop.getAmount()+" "+expect+" "+max+" "+probability+" "+happen);
+				mp.log.info(mp.data.getProfessionPower(event.getPlayer().getName(), this.professionName)+" "+drop.getAmount()+" "+expect+" "+max+" "+probability+" "+happen);
 				if(happen>0){
 					ItemStack bonus = new ItemStack(drop.getType(), happen);
 					event.getBlock().getWorld().dropItem(event.getBlock().getLocation(), bonus);
@@ -160,9 +163,21 @@ public class Profession{
 				if(ench.getMaxLevel() > levelMap.get(ench)){
 					if(Chance.happen(probability)){
 						levelMap.put(ench, levelMap.get(ench)+1);
-						probability *= power;
+						event.getEnchanter().sendMessage(ChatColor.GOLD+ench.getName()+" level surprisingly increase to "+levelMap.get(ench)+".");
+						probability /= 2;
 					}
 				}
+			}
+			if(Chance.happen(probability)){
+				Enchantment[] enchants = Enchantment.values();
+				ArrayList<Enchantment> enchs = new ArrayList<Enchantment>();
+				for(Enchantment ench:enchants){
+					if((levelMap.get(ench)==null || levelMap.get(ench).equals(0)) && ench.canEnchantItem(event.getItem())){
+						enchs.add(ench);
+					}
+				}
+				Enchantment toAdd = enchs.get((new Random()).nextInt(enchs.size()));
+				levelMap.put(toAdd, ((new Random())).nextInt(toAdd.getMaxLevel()-1)+1);
 			}
 		}
 	}

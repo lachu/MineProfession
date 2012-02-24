@@ -7,8 +7,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -39,6 +41,8 @@ public class ProfessionManager implements Listener{
 		humanKill.add("ENTITY_ATTACK");
 		humanKill.add("PROJECTILE");
 	}
+	
+	private HashSet<UUID> spawnerChild = new HashSet<UUID>();
 	
 	private File proFile;
 	private MineProfession mp;
@@ -107,7 +111,7 @@ public class ProfessionManager implements Listener{
 	@EventHandler
 	public void onEvent(BlockBreakEvent event){
 		if(!event.getPlayer().getItemInHand().containsEnchantment(Enchantment.getById(33)) || mp.getConfig().getStringList("track-placement").contains(event.getBlock().getType().name())){
-			//mp.log.info(event.getEventName()+": '"+event.getBlock().getType().name()+"'");
+			mp.log.info(event.getEventName()+": '"+event.getBlock().getType().name()+"'");
 			this.generalListener(event, event.getPlayer().getName());
 		}
 	}
@@ -120,7 +124,7 @@ public class ProfessionManager implements Listener{
 	
 	@EventHandler
 	public void onEvent(EntityDamageByEntityEvent event){
-		if(event.getDamager() instanceof Player){
+		if(event.getDamager() instanceof Player && !spawnerChild.contains(event.getEntity().getUniqueId())){
 			//mp.log.info(event.getEventName()+": '"+event.getEntity().toString()+" "+event.getDamager().toString()+"'");
 			this.generalListener(event, ((Player)event.getDamager()).getName());
 		}
@@ -152,6 +156,7 @@ public class ProfessionManager implements Listener{
 	
 	@EventHandler
 	public void onEvent(EntityDeathEvent event){
+		spawnerChild.remove(event.getEntity().getUniqueId());
 		if(humanKill.contains(event.getEntity().getLastDamageCause().getCause().name()) && event.getEntity().getLocation().getWorld()!=null){
 			List<Player> players = event.getEntity().getLocation().getWorld().getPlayers();
 			for(Player player:players){
@@ -214,6 +219,8 @@ public class ProfessionManager implements Listener{
 					}
 				}
 			}
+		}else if(event.getSpawnReason().name().equals("SPAWNER")){
+			spawnerChild.add(event.getEntity().getUniqueId());
 		}
 	}
 }
