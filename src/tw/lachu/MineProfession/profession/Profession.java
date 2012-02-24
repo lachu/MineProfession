@@ -69,13 +69,15 @@ public class Profession{
 	public void onEvent(BlockBreakEvent event){
 		gainExperience(event.getPlayer().getName(), event, event.getBlock().getType().name());
 		
+		
 		if(abilityMap.get("BlockBreakFortune")!=null && abilityMap.get("BlockBreakFortune").contains(event.getBlock().getType().name())){
 			Collection<ItemStack> drops = event.getBlock().getDrops(event.getPlayer().getItemInHand());
 			for(ItemStack drop:drops){
 				double expect = drop.getAmount()*mp.data.getProfessionPower(event.getPlayer().getName(), this.professionName);
-				int max = ((int)(2*expect))+1;
+				int max = (int)(Math.ceil(2*expect)+0.1);
 				double probability = expect*2/max/(max+1);
 				int happen = Chance.contribute(probability, max);
+				////mp.log.info(mp.data.getProfessionPower(event.getPlayer().getName(), this.professionName)+" "+drop.getAmount()+" "+expect+" "+max+" "+probability+" "+happen);
 				if(happen>0){
 					ItemStack bonus = new ItemStack(drop.getType(), happen);
 					event.getBlock().getWorld().dropItem(event.getBlock().getLocation(), bonus);

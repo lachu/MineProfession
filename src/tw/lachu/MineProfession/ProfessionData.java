@@ -145,6 +145,9 @@ public class ProfessionData extends SerialData{
 	public synchronized int getMajorExperience(String playerName){
 		PlayerEntry pe;
 		if((pe=data.get(playerName.toLowerCase()))!=null){
+			if(pe.major_level == mp.getConfig().getInt("max-major-level")){
+				return 0;
+			}
 			return (int)pe.major_experience;
 		}
 		return 0;
@@ -153,6 +156,9 @@ public class ProfessionData extends SerialData{
 	public synchronized int getMinorExperience(String playerName){
 		PlayerEntry pe;
 		if((pe=data.get(playerName.toLowerCase()))!=null){
+			if(pe.minor_level == mp.getConfig().getInt("max-minor-level")){
+				return 0;
+			}
 			return (int)pe.minor_experience;
 		}
 		return 0;
@@ -220,27 +226,29 @@ public class ProfessionData extends SerialData{
 		
 		if(professionName.equals(getMajor(playerName))){
 			pe.major_experience += exp;
-			if(pe.major_experience<0){
+			while(pe.major_experience<0){
 				if(pe.major_level==1){
 					pe.major_experience = 0;
 				}else{
 					pe.major_experience += prevLevel;
 					pe.major_level = pe.major_level-1;
 				}
-			}else if(pe.major_experience>=thisLevel && pe.major_level<mp.getConfig().getInt("max-major-level")){
+			}
+			while(pe.major_experience>=thisLevel && pe.major_level<mp.getConfig().getInt("max-major-level")){
 				pe.major_experience -= thisLevel;
 				pe.major_level = pe.major_level+1;
 			}
 		}else if(professionName.equals(getMinor(playerName))){
 			pe.minor_experience += exp;
-			if(pe.minor_experience<0){
+			while(pe.minor_experience<0){
 				if(pe.minor_level==1){
 					pe.minor_experience = 0;
 				}else{
 					pe.minor_experience += prevLevel;
 					pe.minor_level = pe.minor_level-1;
 				}
-			}else if(pe.minor_experience>=thisLevel && pe.minor_level<mp.getConfig().getInt("max-minor-level")){
+			}
+			while(pe.minor_experience>=thisLevel && pe.minor_level<mp.getConfig().getInt("max-minor-level")){
 				pe.minor_experience -= thisLevel;
 				pe.minor_level = pe.minor_level+1;
 			}
@@ -261,7 +269,8 @@ public class ProfessionData extends SerialData{
 	}
 	
 	private double powerFunction(int level){
-		return ((double)level)/100;
+		int max = Math.max(mp.getConfig().getInt("max-major-level"), mp.getConfig().getInt("max-minor-level"));
+		return 0.98*Math.sin(level*Math.PI/max/2);
 	}
 	
 	public static int getExperienceForLevel(int level){

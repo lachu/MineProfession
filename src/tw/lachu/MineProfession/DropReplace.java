@@ -32,13 +32,12 @@ public class DropReplace implements Listener {
 				String[] tempArray = replace.split("\\*");
 				replace = tempArray[0];
 				time = tempArray[1];
-				event.getBlock().setType(Material.getMaterial("AIR"));
 				item = new ItemStack(Material.getMaterial(replace), drop.getAmount()*Integer.valueOf(time));
 			}else{
 				item = drop;
 			}
 			loc.getWorld().dropItem(loc, item);
 		}
-		
+		event.getBlock().setType(Material.getMaterial("AIR"));
 	}
 }
