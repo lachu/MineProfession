@@ -10,31 +10,32 @@ import java.util.Set;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockPistonExtendEvent;
+import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.inventory.ItemStack;
 
 import tw.lachu.MineProfession.util.SerialData;
 
-public class TrackPlacement extends SerialData implements Listener{
+public class TrackPlacement extends SerialData< HashMap<Integer,HashMap<Integer,HashSet<Integer>>> > implements Listener{
 	private HashMap<Integer,HashMap<Integer,HashSet<Integer>>> data;
 	private MineProfession mp;
 	private File trackFile;
 	
-	@SuppressWarnings("unchecked")
 	public TrackPlacement(MineProfession mp, File file){
 		this.mp = mp;
 		this.trackFile = file;
-		Object obj = super.load(trackFile);
-		if(obj!=null){
-			data = (HashMap<Integer,HashMap<Integer,HashSet<Integer>>>)obj;
+		data = super.load(trackFile);
+		if(data!=null){
 			mp.log.info("MineProfession: Finish reading track placement data.");
 		}else{
 			data = new HashMap<Integer,HashMap<Integer,HashSet<Integer>>>();
-			mp.log.info("MineProfession: Cannot read track placement data from "+trackFile.toString());
+			mp.log.info("MineProfession: Cannot read track placement data from "+trackFile.toString()+". Create an empty one.");
 		}
 	}
 	
@@ -55,18 +56,10 @@ public class TrackPlacement extends SerialData implements Listener{
 			}
 		}
 		
-		if(super.save(data, trackFile)){
+		if(super.save(data, trackFile,backup)){
 			mp.log.info("MineProfession: Placement tracking data saved.");
 		}else{
 			mp.log.info("MineProfession: Cannot save placement tracking data to "+trackFile.toString());
-		}
-		
-		if(backup){
-			if(super.save(data, super.getBackupFile("trackPlacement", trackFile))){
-				mp.log.info("MineProfession: Placement tracking data backup saved.");
-			}else{
-				mp.log.info("MineProfession: Cannot save placement tracking data backup.");
-			}
 		}
 	}
 	
@@ -96,6 +89,28 @@ public class TrackPlacement extends SerialData implements Listener{
 	
 	private synchronized void unsetHumanPlaced(int x,int y,int z){
 		data.get(x).get(z).remove(y);
+	}
+	
+	@EventHandler
+	public void onBlockPistonExtend(BlockPistonExtendEvent event){
+		List<Block> blocks = event.getBlocks();
+		BlockFace dir = event.getDirection();
+		for(Block block:blocks){
+			if(isHumanPlaced(block)){
+				unsetHumanPlaced( block.getX()-dir.getModX(), block.getY()-dir.getModY(), block.getZ()-dir.getModZ() );
+				setHumanPlaced(block.getX(), block.getY(), block.getZ());
+			}
+		}
+	}
+	
+	@EventHandler
+	public void onBlockPistonRetract(BlockPistonRetractEvent event){
+		Block block = event.getBlock();
+		BlockFace dir = event.getDirection();
+		if(isHumanPlaced(block)){
+			unsetHumanPlaced( block.getX()-dir.getModX(), block.getY()-dir.getModY(), block.getZ()-dir.getModZ() );
+			setHumanPlaced(block.getX(), block.getY(), block.getZ());
+		}
 	}
 	
 	@EventHandler(priority=EventPriority.HIGHEST)

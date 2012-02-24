@@ -12,7 +12,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 import tw.lachu.MineProfession.util.SerialData;
 
-public class ProfessionData extends SerialData{
+public class ProfessionData extends SerialData<HashMap<String, ProfessionData.PlayerEntry>>{
 	public static class PlayerEntry implements Serializable{
 		private static final long serialVersionUID = 1L;
 		String major_profession;
@@ -28,18 +28,16 @@ public class ProfessionData extends SerialData{
 	private Set<String> pros;
 	private HashMap<String,String> descriptions;
 	
-	@SuppressWarnings("unchecked")
 	public ProfessionData(MineProfession mp, File dataFile, File proFile){
 		this.mp = mp;
 		this.dbFile = dataFile;
 		
-		Object obj = super.load(dbFile);
-		if(obj != null){
-			data = (HashMap<String,PlayerEntry>)obj;
+		data = super.load(dbFile);
+		if(data != null){
 			mp.log.info("MineProfession: Finish reading player data.");
 		}else{
 			data = new HashMap<String,PlayerEntry>();
-			mp.log.info("MineProfession: Cannot read player data from "+dbFile.toString());
+			mp.log.info("MineProfession: Cannot read player data from "+dbFile.toString()+". Create an empty one.");
 		}
 		
 		YamlConfiguration proYaml = new YamlConfiguration();
@@ -63,19 +61,12 @@ public class ProfessionData extends SerialData{
 		mp.log.info("MineProfession: Going to save player data.");
 		boolean success = false;
 		
-		if(super.save(data, dbFile)){
+		if(super.save(data, dbFile,backup)){
 			mp.log.info("MineProfession: player data saved.");
 		}else{
 			mp.log.info("MineProfession: Cannot save player data to "+dbFile.toString());
 		}
 		
-		if(backup){
-			if(super.save(data, super.getBackupFile("playerTable", dbFile))){
-				mp.log.info("MineProfession: player data backup saved.");
-			}else{
-				mp.log.info("MineProfession: Cannot save player data backup.");
-			}
-		}
 		return success;
 	}
 	

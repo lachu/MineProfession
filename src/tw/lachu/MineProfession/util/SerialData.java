@@ -2,51 +2,29 @@ package tw.lachu.MineProfession.util;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Calendar;
 
-public class SerialData {
-	protected boolean save(Object data, File file){
+public class SerialData<T> {
+	protected boolean save(T data, File file){
 		try {
 			ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file));
 			oos.writeObject(data);
 			oos.flush();
 			oos.close();
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return false;
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (Exception e) {
 			return false;
 		}
 		return true;
 	}
-	
-	protected Object load(File file){
-		try {
-			ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
-			Object obj = ois.readObject();
-			ois.close();
-			return obj;
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return null;
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return null;
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return null;
-		} 
+
+	protected boolean save(T data, File file, boolean backup){
+		if(backup){
+			save(data, getBackupFile(file.getName(), file));
+		}
+		return save(data, file);
 	}
 	
 	protected File getBackupFile(String extendName, File originalFile){
@@ -65,8 +43,20 @@ public class SerialData {
 		sb.append(currentTime.get(Calendar.SECOND));
 		sb.append(".");
 		sb.append(extendName);
-		File backDir = new File(originalFile.getParentFile(),"backup");
+		File backDir = new File(originalFile.getParentFile(),"Backup");
 		backDir.mkdir();
 		return new File(backDir, sb.toString() );
+	}
+
+	@SuppressWarnings("unchecked")
+	protected T load(File file){
+		try {
+			ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
+			T obj = (T)ois.readObject();
+			ois.close();
+			return obj;
+		} catch (Exception e) {
+			return null;
+		} 
 	}
 }
