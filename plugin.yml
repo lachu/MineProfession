@@ -1,6 +1,6 @@
 name: MineProfession
 main: tw.lachu.MineProfession.MineProfession
-version: 0.2 dev
+version: 0.3
 commands:
    mineprofession:
       description: main command of mineprofession

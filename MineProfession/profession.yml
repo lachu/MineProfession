@@ -1,22 +1,22 @@
 miner:
    experience:
       BlockBreak:
-         STONE: 1
+         STONE: 0.5
          COAL_ORE: 1
-         IRON_ORE: 1
-         GOLD_ORE: 1
-         LAPIS_ORE: 1
-         DIAMOND_ORE: 1
-         REDSTONE_ORE: 1
+         IRON_ORE: 2
+         GOLD_ORE: 4
+         LAPIS_ORE: 2
+         DIAMOND_ORE: 8
+         REDSTONE_ORE: 4
    abilities:
       BlockBreakFortune: [STONE, COAL_ORE, IRON_ORE, GOLD_ORE, LAPIS_ORE, DIAMOND_ORE, REDSTONE_ORE]
    #Extra drop when mining BlockBreakFortune
 lumberjack:
    experience:
       BlockBreak:
-         LOG: 1
+         LOG: 3
          LEAVES: 1
-         CLAY: 1
+         CLAY: 5
    abilities:
       BlockBreakFortune: [LOG, LEAVES, CLAY]
    #Extra drop when logging BlockBreakFortune
@@ -25,15 +25,15 @@ farmer:
       BlockBreak:
          MELON: 1
          WHEAT: 1
-         PUMPKIN: 1
+         PUMPKIN: 2
          SUGAR_CANE_BLOCK: 1
       PlayerShearEntity:
-         CraftSheep: 1
+         CraftSheep: 3
       CreatureSpawn:
-         SHEEP: 1
-         PIG: 1
-         CHICKEN: 1
-         COW: 1
+         SHEEP: 5
+         PIG: 5
+         CHICKEN: 5
+         COW: 5
    abilities:
       BlockBreakFortune: [MELON, WHEAT, PUMKIN, SUGAR_CANE_BLOCK]
       PlayerShearEntityFortune: 3
@@ -43,21 +43,21 @@ farmer:
 hunter:
    experience:
       EntityDamageByEntity:
-         CraftCaveSpider: 1
-         CraftSkeleton: 1
-         CraftPigZombie: 1
-         CraftCreeper: 1
-         CraftSlime: 1
-         CraftZombie: 1
-         CraftSpider: 1
-         CraftEnderman: 1
-         CraftBlaze: 1
-         CraftGhast: 1
-         CraftMagmaCube: 1
-         CraftSilverfish: 1
-         CraftEnderDragon: 1
+         CraftCaveSpider: 3
+         CraftSkeleton: 3
+         CraftPigZombie: 3
+         CraftCreeper: 3
+         CraftSlime: 3
+         CraftZombie: 3
+         CraftSpider: 3
+         CraftEnderman: 3
+         CraftBlaze: 3
+         CraftGhast: 3
+         CraftMagmaCube: 3
+         CraftSilverfish: 3
+         CraftEnderDragon: 3
       EntityTame:
-         CraftWolf: 1
+         CraftWolf: 10
    abilities:
       EntityDeathFortune: [CraftCaveSpider, CraftSkeleton, CraftPigZombie, CraftCreeper, CraftSlime, CraftZombie, CraftSpider, CraftEnderman, CraftBlaze, CraftGhast, CraftMagmaCube, CraftSilverfish, CraftEnderDragon]
       ProtectTamed: true
