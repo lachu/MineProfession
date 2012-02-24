@@ -1,0 +1,108 @@
+miner:
+   experience:
+      BlockBreak:
+         STONE: 1
+         COAL_ORE: 1
+         IRON_ORE: 1
+         GOLD_ORE: 1
+         LAPIS_ORE: 1
+         DIAMOND_ORE: 1
+         REDSTONE_ORE: 1
+   abilities:
+      BlockBreakFortune: [STONE, COAL_ORE, IRON_ORE, GOLD_ORE, LAPIS_ORE, DIAMOND_ORE, REDSTONE_ORE]
+   #Extra drop when mining BlockBreakFortune
+lumberjack:
+   experience:
+      BlockBreak:
+         LOG: 1
+         LEAVES: 1
+         CLAY: 1
+   abilities:
+      BlockBreakFortune: [LOG, LEAVES, CLAY]
+   #Extra drop when logging BlockBreakFortune
+farmer:
+   experience:
+      BlockBreak:
+         MELON: 1
+         WHEAT: 1
+         PUMPKIN: 1
+         SUGAR_CANE_BLOCK: 1
+      PlayerShearEntity:
+         CraftSheep: 1
+      CreatureSpawn:
+         SHEEP: 1
+         PIG: 1
+         CHICKEN: 1
+         COW: 1
+   abilities:
+      BlockBreakFortune: [MELON, WHEAT, PUMKIN, SUGAR_CANE_BLOCK]
+      PlayerShearEntityFortune: 3
+      EntityDeathFortune: [CraftPig, CraftCow, CraftChicken]
+   #Extra wool shearing sheep, extra crops, extra leather, beef, pork, chicken
+   #BlockBreakFortune PlayerShearEntityFortune
+hunter:
+   experience:
+      EntityDamageByEntity:
+         CraftCaveSpider: 1
+         CraftSkeleton: 1
+         CraftPigZombie: 1
+         CraftCreeper: 1
+         CraftSlime: 1
+         CraftZombie: 1
+         CraftSpider: 1
+         CraftEnderman: 1
+         CraftBlaze: 1
+         CraftGhast: 1
+         CraftMagmaCube: 1
+         CraftSilverfish: 1
+         CraftEnderDragon: 1
+      EntityTame:
+         CraftWolf: 1
+   abilities:
+      EntityDeathFortune: [CraftCaveSpider, CraftSkeleton, CraftPigZombie, CraftCreeper, CraftSlime, CraftZombie, CraftSpider, CraftEnderman, CraftBlaze, CraftGhast, CraftMagmaCube, CraftSilverfish, CraftEnderDragon]
+      ProtectTamed: true
+   #Extra loot from mobs, strong wolf
+enchanter:
+   experience:
+      EnchantItem:
+         CONST: 10
+         HELMET: 1.25
+         CHESTPLATE: 2 
+         LEGGINGS: 1.75
+         BOOTS: 1
+         BOW: 1
+         SWORD: 1
+         SPADE: 1
+         AXE: 1
+         PICKAXE: 1
+         WOOD: 1
+         LEATHER: 1
+         STONE: 1.5
+         IRON: 2
+         CHAINMAIL: 2
+         DIAMOND: 3
+         GOLD: 3
+         DIG_SPEED: 1
+         SILK_TOUCH: 10
+         LOOT_BONUS_BLOCKS: 5
+         DURABILITY: 2
+         FIRE_ASPECT: 5 
+         KNOCKBACK: 2
+         DAMAGE_ARTHROPODS: 2
+         DAMAGE_ALL: 1
+         DAMAGE_UNDEAD: 2
+         LOOT_BONUS_MOBS: 5
+         ARROW_INFINITE: 10
+         ARROW_DAMAGE: 1
+         ARROW_KNOCKBACK: 5
+         ARROW_FIRE: 5
+         PROTECTION_ENVIRONMENTAL: 1
+         PROTECTION_FIRE: 2
+         PROTECTION_PROJECTILE: 2
+         PROTECTION_FALL: 2
+         PROTECTION_EXPLOSIONS: 5
+         WATER_WORKER: 5
+         OXYGEN: 5
+   abilities:
+      BetterEnchantment: true
+   #better enchantment
