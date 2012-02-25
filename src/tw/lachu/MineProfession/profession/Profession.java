@@ -9,6 +9,7 @@ import java.util.Random;
 import java.util.Set;
 
 import org.bukkit.ChatColor;
+import org.bukkit.DyeColor;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -23,9 +24,11 @@ import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityTameEvent;
 import org.bukkit.event.player.PlayerShearEntityEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.material.Wool;
 
 import tw.lachu.MineProfession.MineProfession;
 import tw.lachu.MineProfession.util.Chance;
+import tw.lachu.MineProfession.util.DoubleValue;
 
 public class Profession{
 	
@@ -36,13 +39,15 @@ public class Profession{
 	
 	private HashMap<String, HashMap<String,Double>> mapOfExpMaps;
 	private HashMap<String, List<String>> abilityMap;
+	private HashMap<String, Double> abilityRatios;
 	
 	public Profession(MineProfession mp, String name, ConfigurationSection conf){
 		this.mp = mp;
 		this.professionName = name;
 		this.config = conf;
 		this.mapOfExpMaps = new HashMap<String, HashMap<String,Double>>();
-		this.abilityMap = new HashMap<String, List<String>>(); 
+		this.abilityMap = new HashMap<String, List<String>>();
+		this.abilityRatios = new HashMap<String, Double>();
 	}
 	
 	public void load(){
@@ -66,7 +71,11 @@ public class Profession{
 		ConfigurationSection abilitySection = config.getConfigurationSection("abilities");
 		Set<String> abilities = abilitySection.getKeys(false);
 		for(String ability : abilities){
-			abilityMap.put(ability, abilitySection.getStringList(ability));
+			if(!ability.matches("Ratio$")){
+				abilityRatios.put(ability, abilitySection.getDouble(ability));
+			}else{
+				abilityMap.put(ability.replaceFirst("Ratio$", ""), abilitySection.getStringList(ability));
+			}
 		}
 	}
 	
@@ -76,11 +85,10 @@ public class Profession{
 		if(abilityMap.get("BlockBreakFortune")!=null && abilityMap.get("BlockBreakFortune").contains(event.getBlock().getType().name())){
 			Collection<ItemStack> drops = event.getBlock().getDrops(event.getPlayer().getItemInHand());
 			for(ItemStack drop:drops){
-				double expect = drop.getAmount()*mp.data.getProfessionPower(event.getPlayer().getName(), this.professionName);
-				int max = (int)(Math.ceil(2*expect)+0.1);
-				double probability = expect*2/max/(max+1);
+				double expect = abilityRatios.get("BlockBreakFortune")*drop.getAmount()*mp.data.getProfessionPower(event.getPlayer().getName(), this.professionName);
+				int max = (int)(Math.ceil(3*expect)+0.1);
+				double probability = expect*6/max/(max+1)/(max+2);
 				int happen = Chance.contribute(probability, max);
-				mp.log.info(mp.data.getProfessionPower(event.getPlayer().getName(), this.professionName)+" "+drop.getAmount()+" "+expect+" "+max+" "+probability+" "+happen);
 				if(happen>0){
 					ItemStack bonus = new ItemStack(drop.getType(), happen);
 					event.getBlock().getWorld().dropItem(event.getBlock().getLocation(), bonus);
@@ -94,8 +102,17 @@ public class Profession{
 		
 		if(abilityMap.get("PlayerShearEntityFortune")!=null && event.getEntity() instanceof Sheep){
 			Sheep sheep  = (Sheep) event.getEntity();
-			double probability = mp.data.getProfessionPower(event.getPlayer().getName(), this.professionName);
-			sheep.setSheared(!Chance.happen(probability));
+			DyeColor color = sheep.getColor();
+			Wool wool = new Wool(color);
+			
+			double expect = abilityRatios.get("PlayerShearEntityFortune")*mp.data.getProfessionPower(event.getPlayer().getName(), this.professionName);
+			int max = (int)(Math.ceil(3*expect)+0.1);
+			double probability = expect*6/max/(max+1)/(max+2);
+			int happen = Chance.contribute(probability, max);
+			if(happen>0){
+				ItemStack bonus = wool.toItemStack(happen);
+				event.getEntity().getWorld().dropItem(event.getEntity().getLocation(), bonus);
+			}
 		}
 	}
 
@@ -115,7 +132,9 @@ public class Profession{
 	
 	public void onEvent(EntityDamageEvent event, Player player){
 		if(abilityMap.get("ProtectTamed")!=null){
-			event.setDamage(event.getDamage()-(int)(event.getDamage()*mp.data.getProfessionPower(player.getName(), this.professionName)) );
+			double ratio = abilityRatios.get("ProtectTamed")*mp.data.getProfessionPower(player.getName(), this.professionName);
+			ratio = DoubleValue.bind(ratio, 0, 1);
+			event.setDamage(event.getDamage()-(int)(event.getDamage()*ratio) );
 		}
 	}
 	
@@ -128,9 +147,9 @@ public class Profession{
 		if(abilityMap.get("EntityDeathFortune")!=null && abilityMap.get("EntityDeathFortune").contains(event.getEntity().toString().split("\\{")[0])){
 			List<ItemStack> drops = event.getDrops();
 			for(ItemStack drop:drops){
-				double expect = drop.getAmount()*mp.data.getProfessionPower(player.getName(), this.professionName);
-				int max = ((int)(2*expect))+1;
-				double probability = expect*2/max/(max+1);
+				double expect = abilityRatios.get("EntityDeathFortune")*drop.getAmount()*mp.data.getProfessionPower(player.getName(), this.professionName);
+				int max = ((int)(3*expect))+1;
+				double probability = expect*6/max/(max+1)/(max+2);
 				int happen = Chance.contribute(probability, max);
 				if(happen>0){
 					ItemStack bonus = new ItemStack(drop.getType(), happen);
@@ -157,7 +176,7 @@ public class Profession{
 		mp.data.gainExperience(event.getEnchanter().getName(), this.professionName, exp);
 		
 		if(abilityMap.get("BetterEnchantment")!=null){
-			double power = mp.data.getProfessionPower(event.getEnchanter().getName(), this.professionName);
+			double power = abilityRatios.get("BetterEnchantment")*mp.data.getProfessionPower(event.getEnchanter().getName(), this.professionName);
 			double probability = power;
 			for(Enchantment ench:enchSet){
 				if(ench.getMaxLevel() > levelMap.get(ench)){

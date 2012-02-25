@@ -7,9 +7,12 @@ public class Chance {
 	
 	public static int contribute(double probability, int max){
 		double rand = Math.random();
-		if(rand > max*probability){
-			return 0;
+		for(int i=1;i<=max;++i){
+			if((rand -= (max+1-i)*probability)<0){
+				return i;
+			}
 		}
-		return ((int)(rand/probability))+1;
+		return 0;
 	}
+	
 }
