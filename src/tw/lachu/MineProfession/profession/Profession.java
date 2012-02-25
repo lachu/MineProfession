@@ -71,10 +71,12 @@ public class Profession{
 		ConfigurationSection abilitySection = config.getConfigurationSection("abilities");
 		Set<String> abilities = abilitySection.getKeys(false);
 		for(String ability : abilities){
-			if(!ability.matches("Ratio$")){
-				abilityRatios.put(ability, abilitySection.getDouble(ability));
+			if(ability.lastIndexOf("Ratio") == ability.length()-5){
+				//mp.log.info("AbilityRatio: "+ability.substring(0,ability.lastIndexOf("Ratio")));
+				abilityRatios.put(ability.substring(0,ability.lastIndexOf("Ratio")), abilitySection.getDouble(ability));
 			}else{
-				abilityMap.put(ability.replaceFirst("Ratio$", ""), abilitySection.getStringList(ability));
+				//mp.log.info("AbilityName: "+ability);
+				abilityMap.put(ability, abilitySection.getStringList(ability));
 			}
 		}
 	}
@@ -99,16 +101,18 @@ public class Profession{
 	
 	public void onEvent(PlayerShearEntityEvent event){
 		gainExperience(event.getPlayer().getName(), event, event.getEntity().toString());
-		
-		if(abilityMap.get("PlayerShearEntityFortune")!=null && event.getEntity() instanceof Sheep){
+		//if(abilityMap.get("PlayerShearSheepFortune")!=null) mp.log.info("a");
+		//if(event.getEntity() instanceof Sheep) mp.log.info("b");
+		if(abilityMap.get("PlayerShearSheepFortune")!=null && event.getEntity() instanceof Sheep){
 			Sheep sheep  = (Sheep) event.getEntity();
 			DyeColor color = sheep.getColor();
 			Wool wool = new Wool(color);
 			
-			double expect = abilityRatios.get("PlayerShearEntityFortune")*mp.data.getProfessionPower(event.getPlayer().getName(), this.professionName);
+			double expect = abilityRatios.get("PlayerShearSheepFortune")*mp.data.getProfessionPower(event.getPlayer().getName(), this.professionName);
 			int max = (int)(Math.ceil(3*expect)+0.1);
 			double probability = expect*6/max/(max+1)/(max+2);
 			int happen = Chance.contribute(probability, max);
+			//mp.log.info(expect+" "+max+" "+probability+" "+happen);
 			if(happen>0){
 				ItemStack bonus = wool.toItemStack(happen);
 				event.getEntity().getWorld().dropItem(event.getEntity().getLocation(), bonus);

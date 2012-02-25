@@ -261,7 +261,7 @@ public class ProfessionData extends SerialData<HashMap<String, ProfessionData.Pl
 	
 	private double powerFunction(int level){
 		int max = Math.max(mp.getConfig().getInt("max-major-level"), mp.getConfig().getInt("max-minor-level"));
-		return 0.98*Math.sin(level*Math.PI/max/2);
+		return Math.sin(level*Math.PI/max/2);
 	}
 	
 	public static int getExperienceForLevel(int level){
