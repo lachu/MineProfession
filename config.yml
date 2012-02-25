@@ -3,7 +3,4 @@ auto-save-cycle: 86400 # the cycle time of saving player data (unit: second)
 minor-require: 25 # the required level of major profession to have a minor profession
 max-major-level: 50 # the maximum level of major profession
 max-minor-level: 50 #the maximum level of minor profession
-#drop-replace:
-#   IRON_ORE: IRON_INGOT*1
-#   GOLD_ORE: GOLD_INGOT*1
 track-placement: [LOG, LEAVES, PUMPKIN, SUGAR_CANE_BLOCK, CLAY, IRON_ORE, GOLD_ORE]
