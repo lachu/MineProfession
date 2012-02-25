@@ -24,7 +24,7 @@ lumberjack:
 farmer:
    experience:
       BlockBreak:
-         MELON: 1
+         MELON_BLOCK: 1
          CROPS: 1
          PUMPKIN: 2
          SUGAR_CANE_BLOCK: 1
@@ -36,7 +36,7 @@ farmer:
          CHICKEN: 5
          COW: 5
    abilities:
-      BlockBreakFortune: [MELON, WHEAT, PUMKIN, SUGAR_CANE_BLOCK]
+      BlockBreakFortune: [MELON_BLOCK, CROPS, PUMKIN, SUGAR_CANE_BLOCK]
       BlockBreakFortuneRatio: 1
       PlayerShearSheepFortune: [true]
       PlayerShearSheepFortuneRatio: 1
