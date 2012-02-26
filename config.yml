@@ -4,3 +4,5 @@ minor-require: 30 # the required level of major profession to have a minor profe
 max-major-level: 85 # the maximum level of major profession
 max-minor-level: 85 #the maximum level of minor profession
 track-placement: [LOG, LEAVES, PUMPKIN, MELON_BLOCK, SUGAR_CANE_BLOCK, CLAY, IRON_ORE, GOLD_ORE]
+power-formula: 1-Math.cos(level*Math.PI/maxLevel/2) # the power of profession, have to be in [0,1], maxLevel = max(max-major-level, max-minor-level)  
+experience-formula: 10*(1-Math.cos(level*Math.PI/maxLevel/2))/(1-Math.cos(1*Math.PI/maxLevel/2))*0.995^(level-1) #the total experience required to get to the level

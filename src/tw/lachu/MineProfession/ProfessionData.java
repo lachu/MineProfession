@@ -7,11 +7,11 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Set;
 
-import org.bukkit.ChatColor;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.Player;
 
+import tw.lachu.MineProfession.math.MathExpression;
+import tw.lachu.MineProfession.math.MathExpressionFactory;
 import tw.lachu.MineProfession.util.SerialData;
 
 public class ProfessionData extends SerialData<HashMap<String, ProfessionData.PlayerEntry>>{
@@ -24,11 +24,16 @@ public class ProfessionData extends SerialData<HashMap<String, ProfessionData.Pl
 		int minor_level;
 		double minor_experience;
 	}
+	
 	private HashMap<String,PlayerEntry> data;
 	private MineProfession mp;
 	private File dbFile;
 	private Set<String> pros;
 	private HashMap<String,String> descriptions;
+	
+	private MathExpression powerFormula;
+	private MathExpression expFormula;
+	
 	
 	public ProfessionData(MineProfession mp, File dataFile, File proFile){
 		this.mp = mp;
@@ -57,19 +62,46 @@ public class ProfessionData extends SerialData<HashMap<String, ProfessionData.Pl
 		} catch (InvalidConfigurationException e) {
 			mp.log.info("MineProfession: wrong format: MineProfession/profession.yml.");
 		}
+		
+		{
+			Set<String> players = data.keySet();
+			for(String player : players){
+				data.get(player).major_experience += data.get(player).major_level*(data.get(player).major_level-1)*5;
+				data.get(player).major_level = 0;
+				data.get(player).minor_experience += data.get(player).minor_level*(data.get(player).minor_level-1)*5;
+				data.get(player).minor_level = 0;
+			}
+		}
+		
+		Set<String> players = data.keySet();
+		for(String player:players){
+			gainExperience(player, getMajor(player), 0);
+			gainExperience(player, getMinor(player), 0);
+		}
+		
+		powerFormula = (new MathExpressionFactory()).parse(mp.getConfig().getString("power-formula"));
+		expFormula = (new MathExpressionFactory()).parse(mp.getConfig().getString("experience-formula"));
+		
 	}
 	
 	public synchronized boolean saveTable(boolean backup){
 		mp.log.info("MineProfession: Going to save player data.");
-		boolean success = false;
+
+		Set<String> players = data.keySet();
+		for(String player:players){
+			data.get(player).major_level = 0;
+			data.get(player).minor_level = 0;
+		}
+		
 		
 		if(super.save(data, dbFile,backup)){
 			mp.log.info("MineProfession: player data saved.");
+			return true;
 		}else{
 			mp.log.info("MineProfession: Cannot save player data to "+dbFile.toString());
+			return false;
 		}
 		
-		return success;
 	}
 	
 	public String[] getProfessions(){
@@ -213,46 +245,18 @@ public class ProfessionData extends SerialData<HashMap<String, ProfessionData.Pl
 			return;
 		}
 		
-		double exp = expAmount;
-		double thisLevel = getExperienceForLevel(pe.major_level);
-		double prevLevel = getExperienceForLevel(pe.major_level-1);
-		Player player = mp.getServer().getPlayer(playerName);
-		
 		if(professionName.equals(getMajor(playerName))){
-			pe.major_experience += exp;
-			while(pe.major_experience<0){
-				if(pe.major_level==1){
-					pe.major_experience = 0;
-				}else{
-					pe.major_experience += prevLevel;
-					pe.major_level = pe.major_level-1;
-				}
-			}
-			while(pe.major_experience>=thisLevel && pe.major_level<mp.getConfig().getInt("max-major-level")){
-				if(player!=null){
-					player.sendMessage(ChatColor.GOLD+professionName+" levelled up!");
-				}
-				pe.major_experience -= thisLevel;
-				pe.major_level = pe.major_level+1;
+			pe.major_experience += expAmount;
+			while(pe.major_experience >= getExperienceToLevel(pe.major_level+1) && pe.major_level<=mp.getConfig().getInt("max-major-level")){
+				++pe.major_level;
 			}
 		}else if(professionName.equals(getMinor(playerName))){
-			pe.minor_experience += exp;
-			while(pe.minor_experience<0){
-				if(pe.minor_level==1){
-					pe.minor_experience = 0;
-				}else{
-					pe.minor_experience += prevLevel;
-					pe.minor_level = pe.minor_level-1;
-				}
-			}
-			while(pe.minor_experience>=thisLevel && pe.minor_level<mp.getConfig().getInt("max-minor-level")){
-				if(player!=null){
-					player.sendMessage(ChatColor.GOLD+professionName+" levelled up!");
-				}
-				pe.minor_experience -= thisLevel;
-				pe.minor_level = pe.minor_level+1;
+			pe.minor_experience += expAmount;
+			while(pe.minor_experience >= getExperienceToLevel(pe.minor_level+1) && pe.minor_level<=mp.getConfig().getInt("max-minor-level")){
+				++pe.minor_level;
 			}
 		}
+		
 	}
 	
 	public synchronized double getProfessionPower(String playerName, String professionName){
@@ -269,11 +273,16 @@ public class ProfessionData extends SerialData<HashMap<String, ProfessionData.Pl
 	}
 	
 	private double powerFunction(int level){
-		int max = Math.max(mp.getConfig().getInt("max-major-level"), mp.getConfig().getInt("max-minor-level"));
-		return 1-Math.cos(level*Math.PI/max/2);
+		HashMap<String, Double> map = new HashMap<String, Double>();
+		map.put("level", (double)level);
+		map.put("maxLevel", (double)(Math.max(mp.getConfig().getInt("max-major-level"), mp.getConfig().getInt("max-minor-level"))));
+		return powerFormula.value(map);
 	}
 	
-	public static int getExperienceForLevel(int level){
-		return (int)(20*Math.exp(0.9*Math.log(level)))-10;
+	public int getExperienceToLevel(int level){
+		HashMap<String, Double> map = new HashMap<String, Double>();
+		map.put("maxLevel", (double)Math.max(mp.getConfig().getInt("max-major-level"), mp.getConfig().getInt("max-minor-level")));
+		map.put("level", (double)level);
+		return (int)expFormula.value(map);
 	}
 }
