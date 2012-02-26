@@ -7,8 +7,10 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Set;
 
+import org.bukkit.ChatColor;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
 
 import tw.lachu.MineProfession.util.SerialData;
 
@@ -214,6 +216,7 @@ public class ProfessionData extends SerialData<HashMap<String, ProfessionData.Pl
 		double exp = expAmount;
 		double thisLevel = getExperienceForLevel(pe.major_level);
 		double prevLevel = getExperienceForLevel(pe.major_level-1);
+		Player player = mp.getServer().getPlayer(playerName);
 		
 		if(professionName.equals(getMajor(playerName))){
 			pe.major_experience += exp;
@@ -226,6 +229,9 @@ public class ProfessionData extends SerialData<HashMap<String, ProfessionData.Pl
 				}
 			}
 			while(pe.major_experience>=thisLevel && pe.major_level<mp.getConfig().getInt("max-major-level")){
+				if(player!=null){
+					player.sendMessage(ChatColor.GOLD+professionName+" levelled up!");
+				}
 				pe.major_experience -= thisLevel;
 				pe.major_level = pe.major_level+1;
 			}
@@ -240,6 +246,9 @@ public class ProfessionData extends SerialData<HashMap<String, ProfessionData.Pl
 				}
 			}
 			while(pe.minor_experience>=thisLevel && pe.minor_level<mp.getConfig().getInt("max-minor-level")){
+				if(player!=null){
+					player.sendMessage(ChatColor.GOLD+professionName+" levelled up!");
+				}
 				pe.minor_experience -= thisLevel;
 				pe.minor_level = pe.minor_level+1;
 			}
@@ -261,10 +270,10 @@ public class ProfessionData extends SerialData<HashMap<String, ProfessionData.Pl
 	
 	private double powerFunction(int level){
 		int max = Math.max(mp.getConfig().getInt("max-major-level"), mp.getConfig().getInt("max-minor-level"));
-		return Math.sin(level*Math.PI/max/2);
+		return 1-Math.cos(level*Math.PI/max/2);
 	}
 	
 	public static int getExperienceForLevel(int level){
-		return 10*level;
+		return (int)(20*Math.exp(0.9*Math.log(level)))-10;
 	}
 }

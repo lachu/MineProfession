@@ -1,7 +1,7 @@
 miner:
    experience:
       BlockBreak:
-         COAL_ORE: 2
+         COAL_ORE: 1
          IRON_ORE: 3
          REDSTONE_ORE: 10
          LAPIS_ORE: 30
@@ -9,12 +9,12 @@ miner:
          DIAMOND_ORE: 50
    abilities:
       BlockBreakFortune: [COAL_ORE, IRON_ORE, GOLD_ORE, LAPIS_ORE, DIAMOND_ORE, REDSTONE_ORE]
-      BlockBreakFortuneRatio: 1
+      BlockBreakFortuneRatio: 0.6
    #Extra drop when mining BlockBreakFortune
 lumberjack:
    experience:
       BlockBreak:
-         LOG: 3
+         LOG: 4
          LEAVES: 1
          CLAY: 5
    abilities:
@@ -29,19 +29,19 @@ farmer:
          PUMPKIN: 2
          SUGAR_CANE_BLOCK: 1
       PlayerShearEntity:
-         CraftSheep: 3
+         CraftSheep: 1.5
       CreatureSpawn:
-         SHEEP: 5
-         PIG: 5
-         CHICKEN: 5
-         COW: 5
+         SHEEP: 3
+         PIG: 3
+         CHICKEN: 3
+         COW: 3
    abilities:
       BlockBreakFortune: [MELON_BLOCK, CROPS, PUMKIN, SUGAR_CANE_BLOCK]
-      BlockBreakFortuneRatio: 1
+      BlockBreakFortuneRatio: 0.75
       PlayerShearSheepFortune: [true]
-      PlayerShearSheepFortuneRatio: 1
+      PlayerShearSheepFortuneRatio: 2.5
       EntityDeathFortune: [CraftPig, CraftCow, CraftChicken]
-      EntityDeathFortuneRatio: 1
+      EntityDeathFortuneRatio: 1.25
    #Extra wool shearing sheep, extra crops, extra leather, beef, pork, chicken
    #BlockBreakFortune PlayerShearEntityFortune
 hunter:
@@ -54,24 +54,26 @@ hunter:
          CraftSlime: 1
          CraftZombie: 1
          CraftSpider: 1
-         CraftEnderman: 1
-         CraftBlaze: 1
-         CraftGhast: 1
+         CraftEnderman: 2
+         CraftBlaze: 2
+         CraftGhast: 2
          CraftMagmaCube: 1
          CraftSilverfish: 1
-         CraftEnderDragon: 1
+         CraftEnderDragon: 2
       EntityTame:
          CraftWolf: 10
    abilities:
       EntityDeathFortune: [CraftCaveSpider, CraftSkeleton, CraftPigZombie, CraftCreeper, CraftSlime, CraftZombie, CraftSpider, CraftEnderman, CraftBlaze, CraftGhast, CraftMagmaCube, CraftSilverfish, CraftEnderDragon]
-      EntityDeathFortuneRatio: 1
+      EntityDeathFortuneRatio: 2
+      PlayerDamageEntity: [CraftCaveSpider, CraftSkeleton, CraftPigZombie, CraftCreeper, CraftSlime, CraftZombie, CraftSpider, CraftEnderman, CraftBlaze, CraftGhast, CraftMagmaCube, CraftSilverfish, CraftEnderDragon]
+      PlayerDamageEntityRatio: 1.5
       ProtectTamed: [true]
-      ProtectTamedRatio: 1
+      ProtectTamedRatio: 0.9
    #Extra loot from mobs, strong wolf
 enchanter:
    experience:
       EnchantItem:
-         CONST: 10
+         CONST: 5
          HELMET: 1.25
          CHESTPLATE: 2 
          LEGGINGS: 1.75
@@ -111,5 +113,5 @@ enchanter:
          OXYGEN: 5
    abilities:
       BetterEnchantment: [true]
-      BetterEnchantmentRatio: 1
+      BetterEnchantmentRatio: 0.75
    #better enchantment

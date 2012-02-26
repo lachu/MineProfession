@@ -12,6 +12,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.DyeColor;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Sheep;
 import org.bukkit.event.Event;
@@ -125,6 +126,26 @@ public class Profession{
 			for(int i=event.getDamage();i>0;--i){
 				gainExperience(((Player)event.getDamager()).getName(), event, event.getEntity().toString().split("\\{")[0]);
 			}
+
+			if(abilityMap.get("PlayerDamageEntity")!=null && abilityMap.get("PlayerDamageEntity").contains(event.getEntity().toString().split("\\{")[0]) && event.getEntity() instanceof LivingEntity){
+				LivingEntity living = (LivingEntity)event.getEntity();
+				Player player = (Player)event.getDamager();
+				double expect = abilityRatios.get("PlayerDamageEntity")*mp.data.getProfessionPower(player.getName(), this.professionName);
+				int max = (int)(Math.ceil(3*expect)+0.1);
+				double probability = expect*6/max/(max+1)/(max+2);
+				int happen = Chance.contribute(probability, max);
+				int damage = event.getDamage() + happen;
+				if(damage > living.getHealth()){
+					damage = living.getHealth();
+				}
+				if(damage < 0){
+					damage = 0;
+				}
+				living.damage(damage);
+				for(int i=damage;i>0;--i){
+					gainExperience(((Player)event.getDamager()).getName(), event, event.getEntity().toString().split("\\{")[0]);
+				}
+			}
 		}
 	}
 	
@@ -169,7 +190,12 @@ public class Profession{
 		Set<Enchantment> enchSet = levelMap.keySet();
 		double exp = 0;
 		for(Enchantment ench:enchSet){
-			exp += expMap.get(ench.getName()) * levelMap.get(ench);
+			try{
+				exp += expMap.get(ench.getName()) * levelMap.get(ench);
+			}catch(NullPointerException e){
+				exp += levelMap.get(ench);
+				mp.log.info("Enchantment "+ench.getName()+" is not registered in mineprofession, might be a typo.");
+			}
 		}
 		exp *= expMap.get("CONST");
 		
