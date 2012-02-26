@@ -14,7 +14,6 @@ import java.util.UUID;
 
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Tameable;
 import org.bukkit.event.Event;
@@ -110,7 +109,7 @@ public class ProfessionManager implements Listener{
 	
 	@EventHandler
 	public void onEvent(BlockBreakEvent event){
-		if(!event.getPlayer().getItemInHand().containsEnchantment(Enchantment.getById(33)) || mp.getConfig().getStringList("track-placement").contains(event.getBlock().getType().name())){
+		if(mp.getConfig().getStringList("track-placement").contains(event.getBlock().getType().name())){
 			//mp.log.info(event.getEventName()+": '"+event.getBlock().getType().name()+"'");
 			this.generalListener(event, event.getPlayer().getName());
 		}
