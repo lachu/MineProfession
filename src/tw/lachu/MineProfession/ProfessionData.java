@@ -63,6 +63,9 @@ public class ProfessionData extends SerialData<HashMap<String, ProfessionData.Pl
 			mp.log.info("MineProfession: wrong format: MineProfession/profession.yml.");
 		}
 		
+		powerFormula = (new MathExpressionFactory()).parse(mp.getConfig().getString("power-formula"));
+		expFormula = (new MathExpressionFactory()).parse(mp.getConfig().getString("experience-formula"));
+		
 		{
 			Set<String> players = data.keySet();
 			for(String player : players){
@@ -70,17 +73,10 @@ public class ProfessionData extends SerialData<HashMap<String, ProfessionData.Pl
 				data.get(player).major_level = 0;
 				data.get(player).minor_experience += data.get(player).minor_level*(data.get(player).minor_level-1)*5;
 				data.get(player).minor_level = 0;
+				gainExperience(player, getMajor(player), 0);
+				gainExperience(player, getMinor(player), 0);
 			}
 		}
-		
-		Set<String> players = data.keySet();
-		for(String player:players){
-			gainExperience(player, getMajor(player), 0);
-			gainExperience(player, getMinor(player), 0);
-		}
-		
-		powerFormula = (new MathExpressionFactory()).parse(mp.getConfig().getString("power-formula"));
-		expFormula = (new MathExpressionFactory()).parse(mp.getConfig().getString("experience-formula"));
 		
 	}
 	
