@@ -246,13 +246,13 @@ public class ProfessionData extends SerialData<HashMap<String, ProfessionData.Pl
 			pe.major_experience += expAmount;
 			while(pe.major_experience >= getExperienceToLevel(pe.major_level+1) && pe.major_level<=mp.getConfig().getInt("max-major-level")){
 				++pe.major_level;
-				mp.getServer().getPlayer(playerName).sendMessage(ChatColor.GOLD+"Profession "+professionName+" levelled up!");
+				mp.getServer().getPlayer(playerName).sendMessage(ChatColor.GOLD+"Your major profession: "+professionName+" has levelled up!");
 			}
 		}else if(professionName.equals(getMinor(playerName))){
 			pe.minor_experience += expAmount;
 			while(pe.minor_experience >= getExperienceToLevel(pe.minor_level+1) && pe.minor_level<=mp.getConfig().getInt("max-minor-level")){
 				++pe.minor_level;
-				mp.getServer().getPlayer(playerName).sendMessage(ChatColor.GOLD+"Profession "+professionName+" levelled up!");
+				mp.getServer().getPlayer(playerName).sendMessage(ChatColor.GOLD+"Your minor profession: "+professionName+" has levelled up!");
 			}
 		}
 		

@@ -95,6 +95,7 @@ public class Profession{
 				int happen = Chance.contribute(probability, max);
 				if(happen>0){
 					ItemStack bonus = new ItemStack(drop.getType(), happen);
+					bonus.setData( drop.getData() );
 					event.getBlock().getWorld().dropItem(event.getBlock().getLocation(), bonus);
 				}
 			}
