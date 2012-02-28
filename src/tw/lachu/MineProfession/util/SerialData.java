@@ -8,7 +8,7 @@ import java.io.ObjectOutputStream;
 import java.util.Calendar;
 
 public class SerialData<T> {
-	protected boolean save(T data, File file){
+	public boolean save(T data, File file){
 		try {
 			ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file));
 			oos.writeObject(data);
@@ -20,14 +20,14 @@ public class SerialData<T> {
 		return true;
 	}
 
-	protected boolean save(T data, File file, boolean backup){
+	public boolean save(T data, File file, boolean backup){
 		if(backup){
 			save(data, getBackupFile(file.getName(), file));
 		}
 		return save(data, file);
 	}
 	
-	protected File getBackupFile(String extendName, File originalFile){
+	public File getBackupFile(String extendName, File originalFile){
 		Calendar currentTime = Calendar.getInstance();
 		StringBuilder sb = new StringBuilder();
 		sb.append(currentTime.get(Calendar.YEAR));
@@ -49,7 +49,7 @@ public class SerialData<T> {
 	}
 
 	@SuppressWarnings("unchecked")
-	protected T load(File file){
+	public T load(File file){
 		try {
 			ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
 			T obj = (T)ois.readObject();

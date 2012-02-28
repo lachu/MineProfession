@@ -14,20 +14,11 @@ public class PromoteOther implements MyCommand {
 		String name = args[1];
 		Player target;
 		if((target=mp.getServer().getPlayer(name))!=null){
-			synchronized(mp.data){
-				String pro = mp.data.getMinor(name);
-				int level = mp.data.getMinorLevel(name);
-				double exp = mp.data.getMinorExperience(name);
-				if(pro!=null){
-					mp.data.clearMajor(name);
-					mp.data.setMajor(name, pro);
-					mp.data.setMajorLevel(name, level);
-					mp.data.gainExperience(name, pro, exp);
-					sender.sendMessage(ChatColor.GREEN+name+"'s major profession is set to "+pro+".");
-					target.sendMessage(ChatColor.YELLOW+"Your are promoted by "+sender.getName()+".");
-				}else{
-					sender.sendMessage(ChatColor.RED+"You do not have a minor profession.");
-				}
+			if(mp.data.promote(name)){
+				sender.sendMessage(ChatColor.GREEN+name+"'s major profession is set to "+mp.data.getMajor(name)+".");
+				target.sendMessage(ChatColor.YELLOW+"Your are promoted by "+sender.getName()+".");
+			}else{
+				sender.sendMessage(ChatColor.RED+name+" do not have a minor profession.");
 			}
 		}else{
 			sender.sendMessage(ChatColor.RED+"Cannot find player "+args[2]+".");

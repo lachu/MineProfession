@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Set;
 
@@ -26,10 +27,24 @@ public class ProfessionData extends SerialData<HashMap<String, ProfessionData.Pl
 		double minor_experience;
 	}
 	
-	private HashMap<String,PlayerEntry> data;
+	public static class ProfessionEntry implements Serializable{
+		private static final long serialVersionUID = 1L;
+		String profession;
+		int level;
+		double experience;
+		
+		public ProfessionEntry(String pro, double exp){
+			this.profession = pro;
+			this.experience = exp;
+		}
+	}
+	
+	//private HashMap<String,PlayerEntry> oldData;
+	private HashMap<String, ArrayList<ProfessionEntry>> data; 
 	private MineProfession mp;
-	private File dbFile;
-	private Set<String> pros;
+	//private File dbFile;
+	private File newDbFile;
+	private Set<String> professionNames;
 	private HashMap<String,String> descriptions;
 	
 	private MathExpression powerFormula;
@@ -37,23 +52,47 @@ public class ProfessionData extends SerialData<HashMap<String, ProfessionData.Pl
 	
 	
 	public ProfessionData(MineProfession mp, File dataFile, File proFile){
+		HashMap<String,PlayerEntry> oldData = null;
+		File dbFile;
 		this.mp = mp;
-		this.dbFile = dataFile;
+		dbFile = dataFile;
 		
-		data = super.load(dbFile);
-		if(data != null){
-			mp.log.info("MineProfession: Finish reading player data.");
+		newDbFile = new File(dbFile.getParentFile(), "ProfessionData");
+		
+		SerialData<HashMap<String, ArrayList<ProfessionEntry>>> sd = new SerialData<HashMap<String, ArrayList<ProfessionEntry>>>();
+		data = sd.load(newDbFile);
+		if(data == null){
+			oldData = super.load(dbFile);
+			if(oldData != null){
+				mp.log.info("MineProfession: Finish reading player data.");
+				data = new HashMap<String, ArrayList<ProfessionEntry>>();
+				Set<String> players = oldData.keySet();
+				for(String player : players){
+					if(oldData.get(player)!=null){
+						data.put(player, new ArrayList<ProfessionEntry>());
+						if(oldData.get(player).major_profession!=null){
+							data.get(player).set(0, new ProfessionEntry(oldData.get(player).major_profession, oldData.get(player).major_experience));
+						}
+						if(oldData.get(player).minor_profession!=null){
+							data.get(player).set(1, new ProfessionEntry(oldData.get(player).minor_profession, oldData.get(player).minor_experience));
+						}
+					}
+				}
+			}else{
+				//oldData = new HashMap<String,PlayerEntry>();
+				data = new HashMap<String, ArrayList<ProfessionEntry>>();
+				mp.log.info("MineProfession: Cannot read player data from "+dbFile.toString()+". Create an empty one.");
+			}
 		}else{
-			data = new HashMap<String,PlayerEntry>();
-			mp.log.info("MineProfession: Cannot read player data from "+dbFile.toString()+". Create an empty one.");
+			mp.log.info("MineProfession: Finish reading player data.");
 		}
 		
 		YamlConfiguration proYaml = new YamlConfiguration();
 		descriptions = new HashMap<String,String>();
 		try {
 			proYaml.load(proFile);
-			pros = proYaml.getKeys(false);
-			for(String pro:pros){
+			professionNames = proYaml.getKeys(false);
+			for(String pro:professionNames){
 				descriptions.put(pro, proYaml.getString(pro+".description"));
 			}
 		} catch (FileNotFoundException e) {
@@ -70,12 +109,7 @@ public class ProfessionData extends SerialData<HashMap<String, ProfessionData.Pl
 		{
 			Set<String> players = data.keySet();
 			for(String player : players){
-				data.get(player).major_experience += data.get(player).major_level*(data.get(player).major_level-1)*5;
-				data.get(player).major_level = 0;
-				data.get(player).minor_experience += data.get(player).minor_level*(data.get(player).minor_level-1)*5;
-				data.get(player).minor_level = 0;
-				judgeLevel(player, getMajor(player));
-				judgeLevel(player, getMinor(player));
+				judgeLevel(player);
 			}
 		}
 		
@@ -83,26 +117,21 @@ public class ProfessionData extends SerialData<HashMap<String, ProfessionData.Pl
 	
 	public synchronized boolean saveTable(boolean backup){
 		mp.log.info("MineProfession: Going to save player data.");
-
-		Set<String> players = data.keySet();
-		for(String player:players){
-			data.get(player).major_level = 0;
-			data.get(player).minor_level = 0;
-		}
 		
+		SerialData<HashMap<String, ArrayList<ProfessionEntry>>> sd = new SerialData<HashMap<String, ArrayList<ProfessionEntry>>>();
 		
-		if(super.save(data, dbFile,backup)){
+		if(sd.save(data, newDbFile, backup)){
 			mp.log.info("MineProfession: player data saved.");
 			return true;
 		}else{
-			mp.log.info("MineProfession: Cannot save player data to "+dbFile.toString());
+			mp.log.info("MineProfession: Cannot save player data to "+newDbFile.toString());
 			return false;
 		}
 		
 	}
 	
 	public String[] getProfessions(){
-		return pros.toArray(new String[]{});
+		return professionNames.toArray(new String[]{});
 	}
 	
 	public String getDescription(String profession){
@@ -118,172 +147,151 @@ public class ProfessionData extends SerialData<HashMap<String, ProfessionData.Pl
 	}
 	
 	public synchronized boolean clearMinor(String playerName){
-		PlayerEntry pe;
-		if((pe=data.get(playerName.toLowerCase()))!=null && pe.minor_profession!=null){
-			pe.minor_profession=null;
-			pe.minor_experience=0;
-			pe.minor_level=0;
-			return true;
+		return data.get(playerName)!=null && data.get(playerName).remove(1)!=null;
+	}
+	
+	private synchronized ProfessionEntry getEntry(String playerName, String professionName){
+		ProfessionEntry major = getMajorEntry(playerName);
+		if(major != null && major.profession.equals(professionName)){
+			return major;
 		}
-		return false;
-	}
-	
-	public synchronized boolean isAProfession(String profession){
-		return pros.contains(profession);
-	}
-	
-	public synchronized String getMajor(String playerName){
-		PlayerEntry pe;
-		if((pe=data.get(playerName.toLowerCase()))!=null){
-			return pe.major_profession;
+		ProfessionEntry minor = getMinorEntry(playerName);
+		if(minor != null && major.profession.equals(professionName)){
+			return minor;
 		}
 		return null;
 	}
 	
-	public synchronized String getMinor(String playerName){
-		PlayerEntry pe;
-		if((pe=data.get(playerName.toLowerCase()))!=null){
-			return pe.minor_profession;
-		}
-		return null;
-	}
-
-	public synchronized int getMajorLevel(String playerName){
-		PlayerEntry pe;
-		if((pe=data.get(playerName.toLowerCase()))!=null){
-			return pe.major_level;
-		}
-		return 0;
+	private synchronized ProfessionEntry getMajorEntry(String playerName){
+		ArrayList<ProfessionEntry> list = data.get(playerName);
+		return ((list!=null && !list.isEmpty())?(list.get(0)):(null));
 	}
 	
-	public synchronized int getMinorLevel(String playerName){
-		PlayerEntry pe;
-		if((pe=data.get(playerName.toLowerCase()))!=null){
-			return pe.minor_level;
-		}
-		return 0;
-	}
-	
-	public synchronized int getMajorExperience(String playerName){
-		PlayerEntry pe;
-		if((pe=data.get(playerName.toLowerCase()))!=null){
-			if(pe.major_level == mp.getConfig().getInt("max-major-level")){
-				return 0;
-			}
-			return (int)pe.major_experience;
-		}
-		return 0;
-	}
-	
-	public synchronized int getMinorExperience(String playerName){
-		PlayerEntry pe;
-		if((pe=data.get(playerName.toLowerCase()))!=null){
-			if(pe.minor_level == mp.getConfig().getInt("max-minor-level")){
-				return 0;
-			}
-			return (int)pe.minor_experience;
-		}
-		return 0;
-	}
-	
-	public synchronized boolean setMajorLevel(String playerName, int level){
-		PlayerEntry pe;
-		if((pe=data.get(playerName.toLowerCase()))!=null && pe.major_profession!=null){
-			if(level>0 && level<mp.getConfig().getInt("max-major-level")){
-				pe.major_level = level;
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	public synchronized boolean setMinorLevel(String playerName, int level){
-		PlayerEntry pe;
-		if((pe=data.get(playerName.toLowerCase()))!=null && pe.minor_profession!=null){
-			if(level>0 && level<mp.getConfig().getInt("max-minor-level")){
-				pe.minor_level = level;
-				return true;
-			}
-		}
-		return false;
+	private synchronized ProfessionEntry getMinorEntry(String playerName){
+		ArrayList<ProfessionEntry> list = data.get(playerName);
+		return ((list!=null && list.size()>1)?(list.get(1)):(null));
 	}
 	
 	public synchronized boolean setMajor(String playerName, String profession){
-		PlayerEntry pe = data.get(playerName.toLowerCase());
-		if(isAProfession(profession) && (pe==null || pe.major_profession==null)){
-			if(pe==null){
-				pe = new PlayerEntry();
-				data.put(playerName.toLowerCase(),pe);
-			}
-			pe.major_profession = profession;
-			pe.major_level = 1;
-			pe.major_experience = 0;
-			//mp.log.info(playerName+","+pe.major_profession+","+pe.major_level+","+pe.major_experience);	
+		if(!isAProfession(profession) || getMajorEntry(playerName)!=null){
+			return false;
+		}
+		data.get(playerName).set(0, new ProfessionEntry(profession, 0));
+		return true;
+	}
+	
+	public synchronized boolean setMinor(String playerName, String profession){
+		if(!isAProfession(profession) || getMajorLevel(playerName)<mp.getConfig().getInt("minor-require") || getMajorEntry(playerName)!=null){
+			return false;
+		}
+
+		data.get(playerName).set(1, new ProfessionEntry(profession, 0));
+		return true;
+	}
+
+	public synchronized boolean promote(String playerName){
+		if(data.get(playerName)!=null && data.get(playerName).size()>1 && data.get(playerName).get(1)!=null){
+			data.get(playerName).set(0, data.get(playerName).remove(1));
 			return true;
 		}
 		return false;
 	}
 	
-	public synchronized boolean setMinor(String playerName, String profession){
-		PlayerEntry pe = data.get(playerName.toLowerCase());
-		if(isAProfession(profession) && pe!=null && pe.major_level>=mp.getConfig().getInt("minor-require") && pe.minor_profession==null){
-			pe.minor_profession = profession;
-			pe.minor_level = 1;
-			pe.minor_experience = 0;
-			return true;
-		}
-		return false;
+	public boolean isAProfession(String profession){
+		return professionNames.contains(profession);
+	}
+	
+	private synchronized String getProfessionName(ProfessionEntry entry){
+		return ((entry!=null)?(entry.profession):(null));
+	}
+	
+	private synchronized int getLevel(ProfessionEntry entry){
+		return ((entry!=null)?(entry.level):(0));
+	}
+	
+	private synchronized double getExperience(ProfessionEntry entry){
+		return ((entry!=null)?(entry.experience):(0));
+	}
+	
+	public synchronized String getMajor(String playerName){
+		return getProfessionName(getMajorEntry(playerName));
+	}
+	
+	public synchronized String getMinor(String playerName){
+		return getProfessionName(getMinorEntry(playerName));
+	}
+
+	public synchronized int getMajorLevel(String playerName){
+		return getLevel(getMajorEntry(playerName));
+	}
+	
+	public synchronized int getMinorLevel(String playerName){
+		return getLevel(getMinorEntry(playerName));
+	}
+	
+	public synchronized int getMajorExperience(String playerName){
+		return (int)getExperience(getMajorEntry(playerName));
+	}
+	
+	public synchronized int getMinorExperience(String playerName){
+		return (int)getExperience(getMinorEntry(playerName));
 	}
 	
 	public synchronized void gainExperience(String playerName, String professionName, double expAmount){
 		
-		PlayerEntry pe = data.get(playerName.toLowerCase());
-		if(professionName == null || pe==null){
-			return;
-		}
-		
-		if(professionName.equals(getMajor(playerName))){
-			pe.major_experience += expAmount;
-			while(pe.major_experience >= getExperienceToLevel(pe.major_level+1) && pe.major_level<=mp.getConfig().getInt("max-major-level")){
-				++pe.major_level;
-				mp.getServer().getPlayer(playerName).sendMessage(ChatColor.GOLD+"Your major profession: "+professionName+" has levelled up!");
+		ProfessionEntry entry = getEntry(playerName, professionName);
+		if(entry!=null){
+			entry.experience += expAmount;
+			int levelLimit;
+			if(entry == getMajorEntry(playerName)){
+				levelLimit = mp.getConfig().getInt("max-major-level");
+			}else{
+				levelLimit = mp.getConfig().getInt("max-minor-level");
 			}
-		}else if(professionName.equals(getMinor(playerName))){
-			pe.minor_experience += expAmount;
-			while(pe.minor_experience >= getExperienceToLevel(pe.minor_level+1) && pe.minor_level<=mp.getConfig().getInt("max-minor-level")){
-				++pe.minor_level;
-				mp.getServer().getPlayer(playerName).sendMessage(ChatColor.GOLD+"Your minor profession: "+professionName+" has levelled up!");
+			
+			while(entry.experience >= getExperienceToLevel(entry.level+1) && entry.level < levelLimit){
+				++entry.level;
+				mp.getServer().getPlayer(playerName).sendMessage(ChatColor.GOLD+"Your profession, "+professionName+", has levelled up!");
 			}
+			
+			/*while(entry.experience < getExperienceToLevel(entry.level) && entry.level>1){
+				--entry.level;
+			}*/
 		}
 		
 	}
 	
-	public synchronized void judgeLevel(String playerName, String professionName){
-		PlayerEntry pe = data.get(playerName.toLowerCase());
-		if(professionName == null || pe==null){
-			return;
-		}
+	public synchronized void judgeLevel(String playerName){
+		ProfessionEntry major = getMajorEntry(playerName);
+		ProfessionEntry minor = getMinorEntry(playerName);
+		if(major!=null){
+			int levelLimit = mp.getConfig().getInt("max-major-level");
 		
-		if(professionName.equals(getMajor(playerName))){
-			while(pe.major_experience >= getExperienceToLevel(pe.major_level+1) && pe.major_level<=mp.getConfig().getInt("max-major-level")){
-				++pe.major_level;
+			while(major.experience >= getExperienceToLevel(major.level+1) && major.level < levelLimit){
+				++major.level;
 			}
-		}else if(professionName.equals(getMinor(playerName))){
-			while(pe.minor_experience >= getExperienceToLevel(pe.minor_level+1) && pe.minor_level<=mp.getConfig().getInt("max-minor-level")){
-				++pe.minor_level;
+		
+			while(major.experience < getExperienceToLevel(major.level) && major.level>1){
+				--major.level;
+			}
+		}
+		if(minor!=null){
+			int levelLimit = mp.getConfig().getInt("max-minor-level");
+		
+			while(minor.experience >= getExperienceToLevel(minor.level+1) && minor.level < levelLimit){
+				++minor.level;
+			}
+		
+			while(minor.experience < getExperienceToLevel(minor.level) && minor.level>1){
+				--minor.level;
 			}
 		}
 	}
 	
 	public synchronized double getProfessionPower(String playerName, String professionName){
-		PlayerEntry pe = data.get(playerName.toLowerCase());
-		if(pe==null){
-			return 0;
-		}
-		if(professionName.equals(pe.major_profession)){
-			return powerFunction(pe.major_level);
-		}else if(professionName.equals(pe.minor_profession)){
-			return powerFunction(pe.minor_level);
+		ProfessionEntry entry = getEntry(playerName, professionName);
+		if(entry!=null){
+			return powerFunction(entry.level);
 		}
 		return 0;
 	}
