@@ -7,6 +7,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Set;
 
+import org.bukkit.ChatColor;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -73,8 +74,8 @@ public class ProfessionData extends SerialData<HashMap<String, ProfessionData.Pl
 				data.get(player).major_level = 0;
 				data.get(player).minor_experience += data.get(player).minor_level*(data.get(player).minor_level-1)*5;
 				data.get(player).minor_level = 0;
-				gainExperience(player, getMajor(player), 0);
-				gainExperience(player, getMinor(player), 0);
+				judgeLevel(player, getMajor(player));
+				judgeLevel(player, getMinor(player));
 			}
 		}
 		
@@ -245,14 +246,33 @@ public class ProfessionData extends SerialData<HashMap<String, ProfessionData.Pl
 			pe.major_experience += expAmount;
 			while(pe.major_experience >= getExperienceToLevel(pe.major_level+1) && pe.major_level<=mp.getConfig().getInt("max-major-level")){
 				++pe.major_level;
+				mp.getServer().getPlayer(playerName).sendMessage(ChatColor.GOLD+"Profession "+professionName+" levelled up!");
 			}
 		}else if(professionName.equals(getMinor(playerName))){
 			pe.minor_experience += expAmount;
 			while(pe.minor_experience >= getExperienceToLevel(pe.minor_level+1) && pe.minor_level<=mp.getConfig().getInt("max-minor-level")){
 				++pe.minor_level;
+				mp.getServer().getPlayer(playerName).sendMessage(ChatColor.GOLD+"Profession "+professionName+" levelled up!");
 			}
 		}
 		
+	}
+	
+	public synchronized void judgeLevel(String playerName, String professionName){
+		PlayerEntry pe = data.get(playerName.toLowerCase());
+		if(professionName == null || pe==null){
+			return;
+		}
+		
+		if(professionName.equals(getMajor(playerName))){
+			while(pe.major_experience >= getExperienceToLevel(pe.major_level+1) && pe.major_level<=mp.getConfig().getInt("max-major-level")){
+				++pe.major_level;
+			}
+		}else if(professionName.equals(getMinor(playerName))){
+			while(pe.minor_experience >= getExperienceToLevel(pe.minor_level+1) && pe.minor_level<=mp.getConfig().getInt("max-minor-level")){
+				++pe.minor_level;
+			}
+		}
 	}
 	
 	public synchronized double getProfessionPower(String playerName, String professionName){

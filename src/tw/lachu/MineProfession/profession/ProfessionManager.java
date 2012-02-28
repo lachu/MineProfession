@@ -109,8 +109,7 @@ public class ProfessionManager implements Listener{
 	
 	@EventHandler
 	public void onEvent(BlockBreakEvent event){
-		if(mp.getConfig().getStringList("track-placement").contains(event.getBlock().getType().name())){
-			//mp.log.info(event.getEventName()+": '"+event.getBlock().getType().name()+"'");
+		if(!mp.getConfig().getStringList("track-placement").contains(event.getBlock().getType().name()) || !mp.tp.isHumanPlaced(event.getBlock())){
 			this.generalListener(event, event.getPlayer().getName());
 		}
 	}

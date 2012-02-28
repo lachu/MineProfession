@@ -50,7 +50,6 @@ permissions:
          mineprofession.admin: true
    mineprofession.basic:
       description: Permission to have a profession.
-      default: true
    mineprofession.peek:
       description: Permission to see what profession other players are.
       children:

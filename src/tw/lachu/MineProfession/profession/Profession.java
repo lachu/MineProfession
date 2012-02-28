@@ -65,6 +65,7 @@ public class Profession{
 					mapOfExpMaps.put("experience"+eventName, map);
 				}
 				map.put(eventVarName, eventSection.getDouble(eventVarName));
+				mp.log.info("map["+"experience"+eventName+"].put("+eventVarName+", "+eventSection.getDouble(eventVarName)+")");
 			}
 		}
 
@@ -186,24 +187,26 @@ public class Profession{
 
 	public void onEvent(EnchantItemEvent event){
 		Map<Enchantment, Integer> levelMap = event.getEnchantsToAdd();
-		Map<String, Double> expMap = mapOfExpMaps.get("experienceEnchantItem");
 		Set<Enchantment> enchSet = levelMap.keySet();
-		double exp = 0;
-		for(Enchantment ench:enchSet){
-			try{
-				exp += expMap.get(ench.getName()) * levelMap.get(ench);
-			}catch(NullPointerException e){
-				exp += levelMap.get(ench);
-				mp.log.info("Enchantment "+ench.getName()+" is not registered in mineprofession, might be a typo.");
+		if(mapOfExpMaps.get("experienceEnchantItem")!=null && !mapOfExpMaps.get("experienceEnchantItem").isEmpty()){
+			Map<String, Double> expMap = mapOfExpMaps.get("experienceEnchantItem");
+			double exp = 0;
+			for(Enchantment ench:enchSet){
+				try{
+					exp += expMap.get(ench.getName()) * levelMap.get(ench);
+				}catch(NullPointerException e){
+					exp += levelMap.get(ench);
+					mp.log.info("Enchantment "+ench.getName()+" is not registered in mineprofession, might be a typo.");
+				}
 			}
-		}
-		exp *= expMap.get("CONST");
+			exp *= expMap.get("CONST");
 		
-		String[] materialNames = event.getItem().getType().name().split("_");
-		for(String material:materialNames){
-			exp *= expMap.get(material);
+			String[] materialNames = event.getItem().getType().name().split("_");
+			for(String material:materialNames){
+				exp *= expMap.get(material);
+			}
+			mp.data.gainExperience(event.getEnchanter().getName(), this.professionName, exp);
 		}
-		mp.data.gainExperience(event.getEnchanter().getName(), this.professionName, exp);
 		
 		if(abilityMap.get("BetterEnchantment")!=null){
 			double power = abilityRatios.get("BetterEnchantment")*mp.data.getProfessionPower(event.getEnchanter().getName(), this.professionName);

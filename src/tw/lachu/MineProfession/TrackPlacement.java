@@ -39,19 +39,31 @@ public class TrackPlacement extends SerialData< HashMap<Integer,HashMap<Integer,
 		}
 	}
 	
-	public void save(boolean backup){
+	public synchronized void save(boolean backup){
 		
 		{ //gc
 			Set<Integer> keys1 = data.keySet();
+			Set<Integer> toRemove1 = new HashSet<Integer>();
 			for (Integer key1 : keys1) {
 				Set<Integer> keys2 = data.get(key1).keySet();
+				Set<Integer> toRemove2 = new HashSet<Integer>();
 				for (Integer key2 : keys2) {
 					if (data.get(key1).get(key2).isEmpty()) {
-						data.get(key1).remove(key2);
+						toRemove2.add(key2);
 					}
 				}
-				if (data.get(key1).isEmpty()) {
-					data.remove(key1);
+				
+				for (Integer remove2 : toRemove2){
+					if (data.get(key1).get(remove2).isEmpty()) {
+						data.get(key1).remove(remove2);
+					}
+				}
+
+			}
+			
+			for(Integer remove1: toRemove1){
+				if (data.get(remove1).isEmpty()) {
+					data.remove(remove1);
 				}
 			}
 		}
@@ -69,7 +81,7 @@ public class TrackPlacement extends SerialData< HashMap<Integer,HashMap<Integer,
 		return (xMap=data.get(x))!=null && (zMap=xMap.get(z))!=null && zMap.contains(y);
 	}
 	
-	public boolean isHumanPlaced(Block block){
+	public synchronized boolean isHumanPlaced(Block block){
 		return isHumanPlaced(block.getX(),block.getY(),block.getZ());
 	}
 	
@@ -88,11 +100,13 @@ public class TrackPlacement extends SerialData< HashMap<Integer,HashMap<Integer,
 	}
 	
 	private synchronized void unsetHumanPlaced(int x,int y,int z){
-		data.get(x).get(z).remove(y);
+		if(data.get(x)!=null && data.get(x).get(z)!=null){
+			data.get(x).get(z).remove(y);
+		}
 	}
 	
 	@EventHandler
-	public void onBlockPistonExtend(BlockPistonExtendEvent event){
+	public synchronized void onBlockPistonExtend(BlockPistonExtendEvent event){
 		List<Block> blocks = event.getBlocks();
 		BlockFace dir = event.getDirection();
 		for(Block block:blocks){
@@ -104,7 +118,7 @@ public class TrackPlacement extends SerialData< HashMap<Integer,HashMap<Integer,
 	}
 	
 	@EventHandler
-	public void onBlockPistonRetract(BlockPistonRetractEvent event){
+	public synchronized void onBlockPistonRetract(BlockPistonRetractEvent event){
 		Block block = event.getBlock();
 		BlockFace dir = event.getDirection();
 		if(isHumanPlaced(block)){
@@ -114,7 +128,7 @@ public class TrackPlacement extends SerialData< HashMap<Integer,HashMap<Integer,
 	}
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
-	public void onBlockPlace(BlockPlaceEvent event){
+	public synchronized void onBlockPlace(BlockPlaceEvent event){
 		List<String> types = mp.getConfig().getStringList("track-placement");
 		for(String type:types){
 			if(type.equals(event.getBlock().getType().name())){
@@ -125,7 +139,7 @@ public class TrackPlacement extends SerialData< HashMap<Integer,HashMap<Integer,
 	}
 	
 	@EventHandler(priority=EventPriority.LOWEST)
-	public void onBlockBreak(BlockBreakEvent event){
+	public synchronized void onBlockBreak(BlockBreakEvent event){
 		if(event.getBlock().getWorld()!=null && isHumanPlaced(event.getBlock())){
 			Collection<ItemStack> drops = event.getBlock().getDrops();
 			Location loc = event.getBlock().getLocation();
