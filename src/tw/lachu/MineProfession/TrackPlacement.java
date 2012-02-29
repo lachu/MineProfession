@@ -20,7 +20,7 @@ import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.inventory.ItemStack;
 
-import tw.lachu.MineProfession.util.SerialData;
+import tw.lachu.util.SerialData;
 
 public class TrackPlacement extends SerialData< HashMap<Integer,HashMap<Integer,HashSet<Integer>>> > implements Listener{
 	private HashMap<Integer,HashMap<Integer,HashSet<Integer>>> data;

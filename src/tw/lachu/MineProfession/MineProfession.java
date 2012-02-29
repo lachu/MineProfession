@@ -16,6 +16,7 @@ public class MineProfession extends JavaPlugin{
 	public ProfessionData data;
 	public ProfessionManager pm;
 	public TrackPlacement tp;
+	public TrackSpawner ts;
 	
 	public void onEnable(){
 		//print a message.
@@ -38,6 +39,7 @@ public class MineProfession extends JavaPlugin{
 		//read player data
 		data = new ProfessionData(this, getDataFile("playerTable",false), getDataFile("profession.yml",true));
 		tp = new TrackPlacement(this, getDataFile("trackPlacement",false));
+		ts = new TrackSpawner();
 		
 		//schedule saveTable
 		getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Runnable(){
@@ -49,8 +51,8 @@ public class MineProfession extends JavaPlugin{
 		
 		//register listener
 		getServer().getPluginManager().registerEvents(pm, this);
-		//getServer().getPluginManager().registerEvents(new DropReplace(this), this);
 		getServer().getPluginManager().registerEvents(tp, this);
+		getServer().getPluginManager().registerEvents(ts, this);
 		
 	}
 	

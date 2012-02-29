@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Set;
 
@@ -12,9 +11,9 @@ import org.bukkit.ChatColor;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 
-import tw.lachu.MineProfession.math.MathExpression;
-import tw.lachu.MineProfession.math.MathExpressionFactory;
-import tw.lachu.MineProfession.util.SerialData;
+import tw.lachu.math.MathExpression;
+import tw.lachu.math.MathExpressionFactory;
+import tw.lachu.util.SerialData;
 
 public class ProfessionData extends SerialData<HashMap<String, ProfessionData.PlayerEntry>>{
 	public static class PlayerEntry implements Serializable{
@@ -40,7 +39,7 @@ public class ProfessionData extends SerialData<HashMap<String, ProfessionData.Pl
 	}
 	
 	//private HashMap<String,PlayerEntry> oldData;
-	private HashMap<String, ArrayList<ProfessionEntry>> data; 
+	private HashMap<String, HashMap<Integer, ProfessionEntry>> data; 
 	private MineProfession mp;
 	//private File dbFile;
 	private File newDbFile;
@@ -59,28 +58,28 @@ public class ProfessionData extends SerialData<HashMap<String, ProfessionData.Pl
 		
 		newDbFile = new File(dbFile.getParentFile(), "ProfessionData");
 		
-		SerialData<HashMap<String, ArrayList<ProfessionEntry>>> sd = new SerialData<HashMap<String, ArrayList<ProfessionEntry>>>();
+		SerialData<HashMap<String, HashMap<Integer, ProfessionEntry>>> sd = new SerialData<HashMap<String, HashMap<Integer, ProfessionEntry>>>();
 		data = sd.load(newDbFile);
 		if(data == null){
 			oldData = super.load(dbFile);
 			if(oldData != null){
 				mp.log.info("MineProfession: Finish reading player data.");
-				data = new HashMap<String, ArrayList<ProfessionEntry>>();
+				data = new HashMap<String, HashMap<Integer, ProfessionEntry>>();
 				Set<String> players = oldData.keySet();
 				for(String player : players){
 					if(oldData.get(player)!=null){
-						data.put(player, new ArrayList<ProfessionEntry>());
+						data.put(player, new HashMap<Integer, ProfessionEntry>());
 						if(oldData.get(player).major_profession!=null){
-							data.get(player).set(0, new ProfessionEntry(oldData.get(player).major_profession, oldData.get(player).major_experience));
+							data.get(player).put(0, new ProfessionEntry(oldData.get(player).major_profession, oldData.get(player).major_experience));
 						}
 						if(oldData.get(player).minor_profession!=null){
-							data.get(player).set(1, new ProfessionEntry(oldData.get(player).minor_profession, oldData.get(player).minor_experience));
+							data.get(player).put(1, new ProfessionEntry(oldData.get(player).minor_profession, oldData.get(player).minor_experience));
 						}
 					}
 				}
 			}else{
 				//oldData = new HashMap<String,PlayerEntry>();
-				data = new HashMap<String, ArrayList<ProfessionEntry>>();
+				data = new HashMap<String, HashMap<Integer, ProfessionEntry>>();
 				mp.log.info("MineProfession: Cannot read player data from "+dbFile.toString()+". Create an empty one.");
 			}
 		}else{
@@ -117,8 +116,8 @@ public class ProfessionData extends SerialData<HashMap<String, ProfessionData.Pl
 	
 	public synchronized boolean saveTable(boolean backup){
 		mp.log.info("MineProfession: Going to save player data.");
-		
-		SerialData<HashMap<String, ArrayList<ProfessionEntry>>> sd = new SerialData<HashMap<String, ArrayList<ProfessionEntry>>>();
+
+		SerialData<HashMap<String, HashMap<Integer, ProfessionEntry>>> sd = new SerialData<HashMap<String, HashMap<Integer, ProfessionEntry>>>();
 		
 		if(sd.save(data, newDbFile, backup)){
 			mp.log.info("MineProfession: player data saved.");
@@ -143,10 +142,12 @@ public class ProfessionData extends SerialData<HashMap<String, ProfessionData.Pl
 	}
 	
 	public synchronized boolean clearMajor(String playerName){
-		return data.remove(playerName.toLowerCase())!=null;
+		playerName = playerName.toLowerCase();
+		return data.remove(playerName)!=null;
 	}
 	
 	public synchronized boolean clearMinor(String playerName){
+		playerName = playerName.toLowerCase();
 		return data.get(playerName)!=null && data.get(playerName).remove(1)!=null;
 	}
 	
@@ -163,35 +164,38 @@ public class ProfessionData extends SerialData<HashMap<String, ProfessionData.Pl
 	}
 	
 	private synchronized ProfessionEntry getMajorEntry(String playerName){
-		ArrayList<ProfessionEntry> list = data.get(playerName);
-		return ((list!=null && !list.isEmpty())?(list.get(0)):(null));
+		HashMap<Integer, ProfessionEntry> map = data.get(playerName);
+		return ((map!=null && !map.isEmpty())?(map.get(0)):(null));
 	}
 	
 	private synchronized ProfessionEntry getMinorEntry(String playerName){
-		ArrayList<ProfessionEntry> list = data.get(playerName);
-		return ((list!=null && list.size()>1)?(list.get(1)):(null));
+		HashMap<Integer, ProfessionEntry> map = data.get(playerName);
+		return ((map!=null && map.size()>1)?(map.get(1)):(null));
 	}
 	
 	public synchronized boolean setMajor(String playerName, String profession){
+		playerName = playerName.toLowerCase();
 		if(!isAProfession(profession) || getMajorEntry(playerName)!=null){
 			return false;
 		}
-		data.get(playerName).set(0, new ProfessionEntry(profession, 0));
+		data.get(playerName).put(0, new ProfessionEntry(profession, 0));
 		return true;
 	}
 	
 	public synchronized boolean setMinor(String playerName, String profession){
+		playerName = playerName.toLowerCase();
 		if(!isAProfession(profession) || getMajorLevel(playerName)<mp.getConfig().getInt("minor-require") || getMajorEntry(playerName)!=null){
 			return false;
 		}
 
-		data.get(playerName).set(1, new ProfessionEntry(profession, 0));
+		data.get(playerName).put(1, new ProfessionEntry(profession, 0));
 		return true;
 	}
 
 	public synchronized boolean promote(String playerName){
+		playerName = playerName.toLowerCase();
 		if(data.get(playerName)!=null && data.get(playerName).size()>1 && data.get(playerName).get(1)!=null){
-			data.get(playerName).set(0, data.get(playerName).remove(1));
+			data.get(playerName).put(0, data.get(playerName).remove(1));
 			return true;
 		}
 		return false;
@@ -214,31 +218,40 @@ public class ProfessionData extends SerialData<HashMap<String, ProfessionData.Pl
 	}
 	
 	public synchronized String getMajor(String playerName){
+		playerName = playerName.toLowerCase();
 		return getProfessionName(getMajorEntry(playerName));
 	}
 	
 	public synchronized String getMinor(String playerName){
+		playerName = playerName.toLowerCase();
 		return getProfessionName(getMinorEntry(playerName));
 	}
 
 	public synchronized int getMajorLevel(String playerName){
+		playerName = playerName.toLowerCase();
 		return getLevel(getMajorEntry(playerName));
 	}
 	
 	public synchronized int getMinorLevel(String playerName){
+		playerName = playerName.toLowerCase();
 		return getLevel(getMinorEntry(playerName));
 	}
 	
 	public synchronized int getMajorExperience(String playerName){
+		playerName = playerName.toLowerCase();
 		return (int)getExperience(getMajorEntry(playerName));
 	}
 	
 	public synchronized int getMinorExperience(String playerName){
+		playerName = playerName.toLowerCase();
 		return (int)getExperience(getMinorEntry(playerName));
 	}
 	
-	public synchronized void gainExperience(String playerName, String professionName, double expAmount){
-		
+	public synchronized void gainExperience(String playerName, String professionName, Double expAmount){
+		playerName = playerName.toLowerCase();
+		if(expAmount == null){
+			expAmount = Double.valueOf(0);
+		}
 		ProfessionEntry entry = getEntry(playerName, professionName);
 		if(entry!=null){
 			entry.experience += expAmount;
@@ -262,6 +275,7 @@ public class ProfessionData extends SerialData<HashMap<String, ProfessionData.Pl
 	}
 	
 	public synchronized void judgeLevel(String playerName){
+		playerName = playerName.toLowerCase();
 		ProfessionEntry major = getMajorEntry(playerName);
 		ProfessionEntry minor = getMinorEntry(playerName);
 		if(major!=null){
@@ -289,6 +303,7 @@ public class ProfessionData extends SerialData<HashMap<String, ProfessionData.Pl
 	}
 	
 	public synchronized double getProfessionPower(String playerName, String professionName){
+		playerName = playerName.toLowerCase();
 		ProfessionEntry entry = getEntry(playerName, professionName);
 		if(entry!=null){
 			return powerFunction(entry.level);

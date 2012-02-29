@@ -23,11 +23,6 @@ commands:
          /<command> clearmajor [player] - clear the player's profession. (mineprofession.transferothers) (ClearMajorOther)
          /<command> clearminor - clear your own profession. (mineprofession.transferself) (ClearMinorSelf)
          /<command> clearminor [player] - clear the player's profession. (mineprofession.transferothers) (ClearMinorOther)
-         #/<command> setbutton [profession] - set a button that transfer the player pressing it. (mineprofession.buttonmanager) (SetButton)
-         #/<command> clearmajorbutton - set a button that reset the major profession of the player pressing it. (mineprofession.buttonmanager) (ClearMajorButton)
-         #/<command> clearminorbutton - set a button that reset the major profession of the player pressing it. (mineprofession.buttonmanager) (ClearMinorButton)
-         #/<command> removebutton - remove the function of a button. (mineprofession.buttonmanager) (RemoveButton)
-         #/<command> removeallbutton - clear all button sets. (mineprofession.buttonmanager) (RemoveAllButton)
    mineprofessionadmin:
       description: admin command of mineprofession
       aliases: mineproadmin
