@@ -27,5 +27,6 @@ public class EnchantItemExperience extends ExperienceTrigger {
 		}
 		expAmount *= getValue("CONST");
 		pro.mp.data.gainExperience(event.getEnchanter().getName(), pro.profession, expAmount);
+		pro.mp.debug(this, event.getEnchanter().getName(), pro.profession, expAmount);
 	}
 }

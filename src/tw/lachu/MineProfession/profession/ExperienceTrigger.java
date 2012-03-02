@@ -19,6 +19,7 @@ public class ExperienceTrigger extends Trigger{
 	protected HashMap<String, Double> amounts;
 	
 	public void load(Profession pro, ConfigurationSection config){
+		this.pro = pro;
 		Set<String> keys = config.getKeys(false);
 		amounts = new HashMap<String, Double>();
 		for(String key : keys){

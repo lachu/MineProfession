@@ -22,6 +22,7 @@ public class FortuneAbility extends AbilityTrigger {
 						bonus.setData(drop.getData());
 						event.getBlock().getWorld().dropItem(event.getBlock().getLocation(), bonus);
 					}
+					pro.mp.debug(this, event.getPlayer().getName(), drop.getType().name(), result);
 				}
 			}
 		}

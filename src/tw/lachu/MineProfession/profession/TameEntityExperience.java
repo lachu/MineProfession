@@ -8,6 +8,7 @@ public class TameEntityExperience extends ExperienceTrigger {
 	public void onEvent(EntityTameEvent event){
 		if(event.getOwner() instanceof Player){
 			pro.mp.data.gainExperience(((Player)event.getOwner()).getName(), pro.profession, amounts.get(getName(event.getEntity())));
+			pro.mp.debug(this, ((Player)event.getOwner()).getName(), event.getEntity().toString(), amounts.get(getName(event.getEntity())));
 		}
 	}
 }

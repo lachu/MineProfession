@@ -1,13 +1,18 @@
 package tw.lachu.MineProfession.profession;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Set;
 
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.enchantment.EnchantItemEvent;
+import org.bukkit.event.entity.CreatureSpawnEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.EntityTameEvent;
+import org.bukkit.event.player.PlayerShearEntityEvent;
 
 import tw.lachu.MineProfession.MineProfession;
 
@@ -65,76 +70,73 @@ public class Profession{
 		}		
 	}
 	
-	public void onEvent(Event event){
-		for(ExperienceTrigger trigger : expList){
-			try {
-				Method method = trigger.getClass().getMethod("onEvent", event.getClass());
-				method.invoke(trigger, event);
-			} catch (NoSuchMethodException e) {
-				e.printStackTrace();
-			} catch (SecurityException e) {
-				e.printStackTrace();
-			} catch (IllegalAccessException e) {
-				e.printStackTrace();
-			} catch (IllegalArgumentException e) {
-				e.printStackTrace();
-			} catch (InvocationTargetException e) {
-				e.printStackTrace();
-			}
-		}
+	
 
-		for(AbilityTrigger trigger : abiList){
-			try {
-				Method method = trigger.getClass().getMethod("onEvent", event.getClass());
-				method.invoke(trigger, event);
-			} catch (NoSuchMethodException e) {
-				e.printStackTrace();
-			} catch (SecurityException e) {
-				e.printStackTrace();
-			} catch (IllegalAccessException e) {
-				e.printStackTrace();
-			} catch (IllegalArgumentException e) {
-				e.printStackTrace();
-			} catch (InvocationTargetException e) {
-				e.printStackTrace();
-			}
-			
+	
+	public void onEvent(BlockBreakEvent event){
+		for(ExperienceTrigger trigger: expList){
+			trigger.onEvent(event);
+		}
+		for(AbilityTrigger trigger: abiList){
+			trigger.onEvent(event);
 		}
 	}
-	
-	public void onEvent(Event event, Player player){
-		for(ExperienceTrigger trigger : expList){
-			try {
-				Method method = trigger.getClass().getMethod("onEvent", event.getClass(), Player.class);
-				method.invoke(trigger, event, player);
-			} catch (NoSuchMethodException e) {
-				e.printStackTrace();
-			} catch (SecurityException e) {
-				e.printStackTrace();
-			} catch (IllegalAccessException e) {
-				e.printStackTrace();
-			} catch (IllegalArgumentException e) {
-				e.printStackTrace();
-			} catch (InvocationTargetException e) {
-				e.printStackTrace();
-			}
+	public void onEvent(PlayerShearEntityEvent event){
+		for(ExperienceTrigger trigger: expList){
+			trigger.onEvent(event);
 		}
+		for(AbilityTrigger trigger: abiList){
+			trigger.onEvent(event);
+		}
+	}
+	public void onEvent(EntityDamageByEntityEvent event){
+		for(ExperienceTrigger trigger: expList){
+			trigger.onEvent(event);
+		}
+		for(AbilityTrigger trigger: abiList){
+			trigger.onEvent(event);
+		}
+	}
+	public void onEvent(EntityTameEvent event){
+		for(ExperienceTrigger trigger: expList){
+			trigger.onEvent(event);
+		}
+		for(AbilityTrigger trigger: abiList){
+			trigger.onEvent(event);
+		}
+	}
+	public void onEvent(EnchantItemEvent event){
+		for(ExperienceTrigger trigger: expList){
+			trigger.onEvent(event);
+		}
+		for(AbilityTrigger trigger: abiList){
+			trigger.onEvent(event);
+		}
+	}
 
-		for(AbilityTrigger trigger : abiList){
-			try {
-				Method method = trigger.getClass().getMethod("onEvent", event.getClass(), Player.class);
-				method.invoke(trigger, event, player);
-			} catch (NoSuchMethodException e) {
-				e.printStackTrace();
-			} catch (SecurityException e) {
-				e.printStackTrace();
-			} catch (IllegalAccessException e) {
-				e.printStackTrace();
-			} catch (IllegalArgumentException e) {
-				e.printStackTrace();
-			} catch (InvocationTargetException e) {
-				e.printStackTrace();
-			}			
+	
+	public void onEvent(EntityDamageEvent event, Player player){
+		for(ExperienceTrigger trigger: expList){
+			trigger.onEvent(event, player);
+		}
+		for(AbilityTrigger trigger: abiList){
+			trigger.onEvent(event, player);
+		}
+	}
+	public void onEvent(CreatureSpawnEvent event, Player player){
+		for(ExperienceTrigger trigger: expList){
+			trigger.onEvent(event, player);
+		}
+		for(AbilityTrigger trigger: abiList){
+			trigger.onEvent(event, player);
+		}
+	}
+	public void onEvent(EntityDeathEvent event, Player player){
+		for(ExperienceTrigger trigger: expList){
+			trigger.onEvent(event, player);
+		}
+		for(AbilityTrigger trigger: abiList){
+			trigger.onEvent(event, player);
 		}
 	}
 }

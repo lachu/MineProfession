@@ -8,6 +8,7 @@ public class CreatureBreedExperience extends ExperienceTrigger{
 	public void onEvent(CreatureSpawnEvent event, Player player){
 		if("CUSTOM".equals(event.getSpawnReason().name())){
 			pro.mp.data.gainExperience(player.getName(), pro.profession, amounts.get(event.getCreatureType().name()));
+			pro.mp.debug(this, player.getName(), pro.profession, amounts.get(event.getCreatureType().name()));
 		}
 	}
 }

@@ -23,7 +23,6 @@ public class MathToken extends MathElement {
 
 	@Override
 	String parse(String expression) {
-		//System.out.println(this.getClass().toString()+" "+expression);
 		if(expression.charAt(0)=='*'){
 			divide = false;
 			expression = expression.substring(1);

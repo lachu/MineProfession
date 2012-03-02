@@ -4,12 +4,13 @@ miner:
          COAL_ORE: 1
          IRON_ORE: 3
          REDSTONE_ORE: 10
+         GLOWING_REDSTONE_ORE: 10
          LAPIS_ORE: 30
          GOLD_ORE: 40
          DIAMOND_ORE: 50
    abilities:
       Fortune:
-         types: [COAL_ORE, IRON_ORE, GOLD_ORE, LAPIS_ORE, DIAMOND_ORE, REDSTONE_ORE]
+         types: [COAL_ORE, IRON_ORE, GOLD_ORE, LAPIS_ORE, DIAMOND_ORE, REDSTONE_ORE, GLOWING_REDSTONE_ORE]
          power: 0.6
 lumberjack:
    experience:
@@ -35,6 +36,7 @@ farmer:
          PIG: 3
          CHICKEN: 3
          COW: 3
+         MUSHROOM_COW: 3
    abilities:
       Fortune:
          types: [MELON_BLOCK, CROPS, PUMKIN, SUGAR_CANE_BLOCK]
@@ -42,7 +44,7 @@ farmer:
       ExtraWool:
          power: 2
       Looting:
-         types: [CraftPig, CraftCow, CraftChicken]
+         types: [CraftPig, CraftCow, CraftChicken, CraftMushroomCow]
          power: 1.25
 hunter:
    experience:

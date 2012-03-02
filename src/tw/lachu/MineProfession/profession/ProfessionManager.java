@@ -172,19 +172,25 @@ public class ProfessionManager implements Listener{
 	@EventHandler
 	public void onEvent(CreatureSpawnEvent event){
 		if(event.getSpawnReason().name().equals("CUSTOM") && event.getLocation().getWorld()!=null){
-			
+			mp.debug(this, "CreatureSpawn", event.getCreatureType().name());
 			List<Player> players = event.getLocation().getWorld().getPlayers();
+			double min_distance = 0;
+			Player closest = null;
 			for(Player player:players){
-				if(player.getLocation().distance(event.getLocation())<10){
-					if(player!=null){
-					 	Profession major = proMap.get(mp.data.getMajor(player.getName()));
-						Profession minor = proMap.get(mp.data.getMinor(player.getName()));
-						if(major!=null){
-							major.onEvent(event, player);
-						}
-						if(minor!=null){
-							minor.onEvent(event, player);
-						}
+				double temp = player.getLocation().distance(event.getLocation());
+				if(closest==null || min_distance>temp){
+					closest = player;
+				}
+			}
+			if(closest.getLocation().distance(event.getLocation())<100){
+				if(closest!=null){
+				 	Profession major = proMap.get(mp.data.getMajor(closest.getName()));
+					Profession minor = proMap.get(mp.data.getMinor(closest.getName()));
+					if(major!=null){
+						major.onEvent(event, closest);
+					}
+					if(minor!=null){
+						minor.onEvent(event, closest);
 					}
 				}
 			}

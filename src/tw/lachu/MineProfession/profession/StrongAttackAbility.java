@@ -20,6 +20,7 @@ public class StrongAttackAbility extends AbilityTrigger {
 			if(result>0){
 				entity.damage(result, player);
 			}
+			pro.mp.debug(this, player.getName(), event.getDamage(), result);
 		}
 	}
 }

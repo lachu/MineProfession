@@ -1,14 +1,11 @@
 package tw.lachu.MineProfession;
 
 import java.io.File;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.event.EventHandler;
@@ -18,7 +15,6 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPistonExtendEvent;
 import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.inventory.ItemStack;
 
 import tw.lachu.util.SerialData;
 
@@ -86,6 +82,7 @@ public class TrackPlacement extends SerialData< HashMap<Integer,HashMap<Integer,
 	}
 	
 	private synchronized void setHumanPlaced(int x,int y,int z){
+		mp.debug(this, "setHumanPlaced: "+x+", "+y+", "+z);
 		HashMap<Integer,HashSet<Integer>> xMap = data.get(x);
 		if(xMap==null){
 			xMap = new HashMap<Integer,HashSet<Integer>>();
@@ -100,6 +97,7 @@ public class TrackPlacement extends SerialData< HashMap<Integer,HashMap<Integer,
 	}
 	
 	private synchronized void unsetHumanPlaced(int x,int y,int z){
+		mp.debug(this, "unsetHumanPlaced: "+x+", "+y+", "+z);
 		if(data.get(x)!=null && data.get(x).get(z)!=null){
 			data.get(x).get(z).remove(y);
 		}
@@ -111,6 +109,7 @@ public class TrackPlacement extends SerialData< HashMap<Integer,HashMap<Integer,
 		BlockFace dir = event.getDirection();
 		for(Block block:blocks){
 			if(isHumanPlaced(block)){
+				mp.debug(this, "piston extend (following two lines)");
 				unsetHumanPlaced( block.getX()-dir.getModX(), block.getY()-dir.getModY(), block.getZ()-dir.getModZ() );
 				setHumanPlaced(block.getX(), block.getY(), block.getZ());
 			}
@@ -122,6 +121,7 @@ public class TrackPlacement extends SerialData< HashMap<Integer,HashMap<Integer,
 		Block block = event.getBlock();
 		BlockFace dir = event.getDirection();
 		if(isHumanPlaced(block)){
+			mp.debug(this, "piston retract (following two lines)");
 			unsetHumanPlaced( block.getX()-dir.getModX(), block.getY()-dir.getModY(), block.getZ()-dir.getModZ() );
 			setHumanPlaced(block.getX(), block.getY(), block.getZ());
 		}
@@ -129,6 +129,7 @@ public class TrackPlacement extends SerialData< HashMap<Integer,HashMap<Integer,
 	
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public synchronized void onBlockPlace(BlockPlaceEvent event){
+		mp.debug(this, "place"+event.getBlock().getType().name());
 		List<String> types = mp.getConfig().getStringList("track-placement");
 		for(String type:types){
 			if(type.equals(event.getBlock().getType().name())){
@@ -138,16 +139,11 @@ public class TrackPlacement extends SerialData< HashMap<Integer,HashMap<Integer,
 		}
 	}
 	
-	@EventHandler(priority=EventPriority.LOWEST)
+	@EventHandler(priority=EventPriority.HIGHEST)
 	public synchronized void onBlockBreak(BlockBreakEvent event){
+		mp.debug(this, "break"+event.getBlock().getType().name());
 		if(event.getBlock().getWorld()!=null && isHumanPlaced(event.getBlock())){
-			Collection<ItemStack> drops = event.getBlock().getDrops();
-			Location loc = event.getBlock().getLocation();
-			event.getBlock().setType(Material.getMaterial("AIR"));
 			unsetHumanPlaced(event.getBlock().getX(), event.getBlock().getY(), event.getBlock().getZ());
-			for(ItemStack drop:drops){
-				loc.getWorld().dropItem(loc, drop);
-			}
 		}
 	}
 }

@@ -21,7 +21,6 @@ public class MathExpression extends MathElement {
 	}
 	
 	String parse(String expression){
-		//System.out.println(this.getClass().toString()+" "+expression);
 		if(expression.charAt(0)=='+'){
 			expression = expression.substring(1);
 		}

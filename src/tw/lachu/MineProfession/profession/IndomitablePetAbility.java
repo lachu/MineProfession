@@ -17,6 +17,7 @@ public class IndomitablePetAbility extends AbilityTrigger {
 				if(result>0){
 					event.setDamage(event.getDamage()-result);
 				}
+				pro.mp.debug(this, player.getName(), event.getDamage()+result, result);
 			}
 		}
 	}

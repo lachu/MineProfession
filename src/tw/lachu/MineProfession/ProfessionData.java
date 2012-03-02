@@ -15,16 +15,7 @@ import tw.lachu.math.MathExpression;
 import tw.lachu.math.MathExpressionFactory;
 import tw.lachu.util.SerialData;
 
-public class ProfessionData extends SerialData<HashMap<String, ProfessionData.PlayerEntry>>{
-	public static class PlayerEntry implements Serializable{
-		private static final long serialVersionUID = 1L;
-		String major_profession;
-		int major_level;
-		double major_experience;
-		String minor_profession;
-		int minor_level;
-		double minor_experience;
-	}
+public class ProfessionData extends SerialData<HashMap<String, HashMap<Integer, ProfessionData.ProfessionEntry>>>{
 	
 	public static class ProfessionEntry implements Serializable{
 		private static final long serialVersionUID = 1L;
@@ -35,6 +26,7 @@ public class ProfessionData extends SerialData<HashMap<String, ProfessionData.Pl
 		public ProfessionEntry(String pro, double exp){
 			this.profession = pro;
 			this.experience = exp;
+			this.level = 1;
 		}
 	}
 	
@@ -42,7 +34,7 @@ public class ProfessionData extends SerialData<HashMap<String, ProfessionData.Pl
 	private HashMap<String, HashMap<Integer, ProfessionEntry>> data; 
 	private MineProfession mp;
 	//private File dbFile;
-	private File newDbFile;
+	private File dataFile;
 	private Set<String> professionNames;
 	private HashMap<String,String> descriptions;
 	
@@ -50,40 +42,16 @@ public class ProfessionData extends SerialData<HashMap<String, ProfessionData.Pl
 	private MathExpression expFormula;
 	
 	
-	public ProfessionData(MineProfession mp, File dataFile, File proFile){
-		HashMap<String,PlayerEntry> oldData = null;
-		File dbFile;
+	public ProfessionData(MineProfession mp, File inFile, File proFile){
 		this.mp = mp;
-		dbFile = dataFile;
+		this.dataFile = inFile;
 		
-		newDbFile = new File(dbFile.getParentFile(), "ProfessionData");
-		
-		SerialData<HashMap<String, HashMap<Integer, ProfessionEntry>>> sd = new SerialData<HashMap<String, HashMap<Integer, ProfessionEntry>>>();
-		data = sd.load(newDbFile);
+		data = super.load(inFile);
 		if(data == null){
-			oldData = super.load(dbFile);
-			if(oldData != null){
-				mp.log.info("MineProfession: Finish reading player data.");
-				data = new HashMap<String, HashMap<Integer, ProfessionEntry>>();
-				Set<String> players = oldData.keySet();
-				for(String player : players){
-					if(oldData.get(player)!=null){
-						data.put(player, new HashMap<Integer, ProfessionEntry>());
-						if(oldData.get(player).major_profession!=null){
-							data.get(player).put(0, new ProfessionEntry(oldData.get(player).major_profession, oldData.get(player).major_experience));
-						}
-						if(oldData.get(player).minor_profession!=null){
-							data.get(player).put(1, new ProfessionEntry(oldData.get(player).minor_profession, oldData.get(player).minor_experience));
-						}
-					}
-				}
-			}else{
-				//oldData = new HashMap<String,PlayerEntry>();
-				data = new HashMap<String, HashMap<Integer, ProfessionEntry>>();
-				mp.log.info("MineProfession: Cannot read player data from "+dbFile.toString()+". Create an empty one.");
-			}
+			data = new HashMap<String, HashMap<Integer, ProfessionEntry>>();
+			mp.log.info("MineProfession: Cannot read player data from "+dataFile.toString()+". Create an empty one.");
 		}else{
-			mp.log.info("MineProfession: Finish reading player data.");
+			mp.log.info("MineProfession: Finish reading player data from "+dataFile.toString()+".");
 		}
 		
 		YamlConfiguration proYaml = new YamlConfiguration();
@@ -117,13 +85,12 @@ public class ProfessionData extends SerialData<HashMap<String, ProfessionData.Pl
 	public synchronized boolean saveTable(boolean backup){
 		mp.log.info("MineProfession: Going to save player data.");
 
-		SerialData<HashMap<String, HashMap<Integer, ProfessionEntry>>> sd = new SerialData<HashMap<String, HashMap<Integer, ProfessionEntry>>>();
 		
-		if(sd.save(data, newDbFile, backup)){
-			mp.log.info("MineProfession: player data saved.");
+		if(super.save(data, dataFile, backup)){
+			mp.log.info("MineProfession: player data saved to "+dataFile.toString()+".");
 			return true;
 		}else{
-			mp.log.info("MineProfession: Cannot save player data to "+newDbFile.toString());
+			mp.log.info("MineProfession: Cannot save player data to "+dataFile.toString());
 			return false;
 		}
 		
@@ -141,61 +108,72 @@ public class ProfessionData extends SerialData<HashMap<String, ProfessionData.Pl
 		return des;
 	}
 	
+	private HashMap<Integer, ProfessionEntry> getPlayerMap(String playerName){
+		HashMap<Integer, ProfessionEntry> map = data.get(playerName.toLowerCase());
+		if(map == null){
+			map = new HashMap<Integer, ProfessionEntry>();
+			data.put(playerName.toLowerCase(), map);
+		}
+		return map;
+	}
+	
+	private boolean removePlayerMap(String playerName){
+		return data.remove(playerName.toLowerCase())!=null;
+	}
+	
 	public synchronized boolean clearMajor(String playerName){
-		playerName = playerName.toLowerCase();
-		return data.remove(playerName)!=null;
+		return removePlayerMap(playerName);
 	}
 	
 	public synchronized boolean clearMinor(String playerName){
-		playerName = playerName.toLowerCase();
-		return data.get(playerName)!=null && data.get(playerName).remove(1)!=null;
+		return getPlayerMap(playerName).remove(1)!=null;
 	}
 	
-	private synchronized ProfessionEntry getEntry(String playerName, String professionName){
+	private synchronized ProfessionEntry getProfessionEntry(String playerName, String professionName){
 		ProfessionEntry major = getMajorEntry(playerName);
 		if(major != null && major.profession.equals(professionName)){
 			return major;
 		}
 		ProfessionEntry minor = getMinorEntry(playerName);
-		if(minor != null && major.profession.equals(professionName)){
+		if(minor != null && minor.profession.equals(professionName)){
 			return minor;
 		}
 		return null;
 	}
 	
 	private synchronized ProfessionEntry getMajorEntry(String playerName){
-		HashMap<Integer, ProfessionEntry> map = data.get(playerName);
-		return ((map!=null && !map.isEmpty())?(map.get(0)):(null));
+		return getPlayerMap(playerName).get(0);
 	}
 	
 	private synchronized ProfessionEntry getMinorEntry(String playerName){
-		HashMap<Integer, ProfessionEntry> map = data.get(playerName);
-		return ((map!=null && map.size()>1)?(map.get(1)):(null));
+		return getPlayerMap(playerName).get(1);
 	}
 	
 	public synchronized boolean setMajor(String playerName, String profession){
-		playerName = playerName.toLowerCase();
 		if(!isAProfession(profession) || getMajorEntry(playerName)!=null){
 			return false;
 		}
-		data.get(playerName).put(0, new ProfessionEntry(profession, 0));
+		getPlayerMap(playerName).put(0, new ProfessionEntry(profession, 0));
 		return true;
 	}
 	
 	public synchronized boolean setMinor(String playerName, String profession){
-		playerName = playerName.toLowerCase();
-		if(!isAProfession(profession) || getMajorLevel(playerName)<mp.getConfig().getInt("minor-require") || getMajorEntry(playerName)!=null){
+		if(!isAProfession(profession) || 
+		   getMinorEntry(playerName)!=null ||  //already has one
+		   getMajorEntry(playerName)==null ||  //no major
+		   getMajorLevel(playerName)<mp.getConfig().getInt("minor-require") || //major level too low
+		   getMajorEntry(playerName).profession.equals(profession)){           //same as major
 			return false;
 		}
 
-		data.get(playerName).put(1, new ProfessionEntry(profession, 0));
+		getPlayerMap(playerName).put(1, new ProfessionEntry(profession, 0));
 		return true;
 	}
 
 	public synchronized boolean promote(String playerName){
-		playerName = playerName.toLowerCase();
-		if(data.get(playerName)!=null && data.get(playerName).size()>1 && data.get(playerName).get(1)!=null){
-			data.get(playerName).put(0, data.get(playerName).remove(1));
+		HashMap<Integer, ProfessionEntry> map = getPlayerMap(playerName);
+		if(map.get(1)!=null){
+			map.put(0, map.remove(1));
 			return true;
 		}
 		return false;
@@ -218,42 +196,37 @@ public class ProfessionData extends SerialData<HashMap<String, ProfessionData.Pl
 	}
 	
 	public synchronized String getMajor(String playerName){
-		playerName = playerName.toLowerCase();
 		return getProfessionName(getMajorEntry(playerName));
 	}
 	
 	public synchronized String getMinor(String playerName){
-		playerName = playerName.toLowerCase();
 		return getProfessionName(getMinorEntry(playerName));
 	}
 
 	public synchronized int getMajorLevel(String playerName){
-		playerName = playerName.toLowerCase();
 		return getLevel(getMajorEntry(playerName));
 	}
 	
 	public synchronized int getMinorLevel(String playerName){
-		playerName = playerName.toLowerCase();
 		return getLevel(getMinorEntry(playerName));
 	}
 	
 	public synchronized int getMajorExperience(String playerName){
-		playerName = playerName.toLowerCase();
 		return (int)getExperience(getMajorEntry(playerName));
 	}
 	
 	public synchronized int getMinorExperience(String playerName){
-		playerName = playerName.toLowerCase();
 		return (int)getExperience(getMinorEntry(playerName));
 	}
 	
 	public synchronized void gainExperience(String playerName, String professionName, Double expAmount){
-		playerName = playerName.toLowerCase();
+		mp.debug(this, "gainExperience: ",playerName, professionName, expAmount);
 		if(expAmount == null){
-			expAmount = Double.valueOf(0);
+			return;
 		}
-		ProfessionEntry entry = getEntry(playerName, professionName);
+		ProfessionEntry entry = getProfessionEntry(playerName, professionName);
 		if(entry!=null){
+			mp.debug(this, "gainExperience.inner: ",playerName, professionName, expAmount);
 			entry.experience += expAmount;
 			int levelLimit;
 			if(entry == getMajorEntry(playerName)){
@@ -266,45 +239,30 @@ public class ProfessionData extends SerialData<HashMap<String, ProfessionData.Pl
 				++entry.level;
 				mp.getServer().getPlayer(playerName).sendMessage(ChatColor.GOLD+"Your profession, "+professionName+", has levelled up!");
 			}
-			
-			/*while(entry.experience < getExperienceToLevel(entry.level) && entry.level>1){
-				--entry.level;
-			}*/
 		}
-		
 	}
 	
 	public synchronized void judgeLevel(String playerName){
-		playerName = playerName.toLowerCase();
-		ProfessionEntry major = getMajorEntry(playerName);
-		ProfessionEntry minor = getMinorEntry(playerName);
-		if(major!=null){
-			int levelLimit = mp.getConfig().getInt("max-major-level");
-		
-			while(major.experience >= getExperienceToLevel(major.level+1) && major.level < levelLimit){
-				++major.level;
-			}
-		
-			while(major.experience < getExperienceToLevel(major.level) && major.level>1){
-				--major.level;
-			}
+		judgeLevel(getMajorEntry(playerName), mp.getConfig().getInt("max-major-level"));
+		judgeLevel(getMinorEntry(playerName), mp.getConfig().getInt("max-minor-level"));
+	}
+	
+	private void judgeLevel(ProfessionEntry entry, int maxLevel){
+		if(entry == null){
+			return;
 		}
-		if(minor!=null){
-			int levelLimit = mp.getConfig().getInt("max-minor-level");
 		
-			while(minor.experience >= getExperienceToLevel(minor.level+1) && minor.level < levelLimit){
-				++minor.level;
-			}
-		
-			while(minor.experience < getExperienceToLevel(minor.level) && minor.level>1){
-				--minor.level;
-			}
+		while(entry.experience >= getExperienceToLevel(entry.level+1) && entry.level < maxLevel){
+			++entry.level;
+		}
+	
+		while(entry.experience < getExperienceToLevel(entry.level) && entry.level>1){
+			--entry.level;
 		}
 	}
 	
 	public synchronized double getProfessionPower(String playerName, String professionName){
-		playerName = playerName.toLowerCase();
-		ProfessionEntry entry = getEntry(playerName, professionName);
+		ProfessionEntry entry = getProfessionEntry(playerName, professionName);
 		if(entry!=null){
 			return powerFunction(entry.level);
 		}
@@ -319,9 +277,20 @@ public class ProfessionData extends SerialData<HashMap<String, ProfessionData.Pl
 	}
 	
 	public int getExperienceToLevel(int level){
+		if(level==1){
+			return 0;
+		}
 		HashMap<String, Double> map = new HashMap<String, Double>();
 		map.put("maxLevel", (double)Math.max(mp.getConfig().getInt("max-major-level"), mp.getConfig().getInt("max-minor-level")));
 		map.put("level", (double)level);
 		return (int)expFormula.value(map);
+	}
+	
+	public int getMajorMaxLevel(){
+		return mp.getConfig().getInt("max-major-level");
+	}
+	
+	public int getMinorMaxLevel(){
+		return mp.getConfig().getInt("max-minor-level");
 	}
 }

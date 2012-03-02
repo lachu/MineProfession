@@ -23,9 +23,6 @@ public class MathSection extends MathElement {
 	}
 	
 	String parse(String expression){
-		//System.out.println(this.getClass().toString()+" "+expression);
-		//Long t = System.currentTimeMillis();
-		//while(System.currentTimeMillis() - t < 5000);
 		if(expression.charAt(0)=='+'){
 			expression = expression.substring(1);
 			sign = 1;

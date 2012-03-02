@@ -16,6 +16,7 @@ public class ExtraWoolAbility extends AbilityTrigger {
 				ItemStack bonus = new Wool(((Sheep)event.getEntity()).getColor()).toItemStack(result);
 				event.getEntity().getWorld().dropItem(event.getEntity().getLocation(), bonus);
 			}
+			pro.mp.debug(this, event.getPlayer().getName(), new Wool(((Sheep)event.getEntity()).getColor()), result);
 		}
 	}
 }

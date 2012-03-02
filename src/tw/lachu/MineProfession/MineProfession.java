@@ -20,7 +20,6 @@ public class MineProfession extends JavaPlugin{
 	
 	public void onEnable(){
 		//print a message.
-		log.info("MineProfession has been enabled!");
 		getConfig().options().copyDefaults(true);
 		saveDefaultConfig();
 		reloadConfig();
@@ -37,9 +36,9 @@ public class MineProfession extends JavaPlugin{
 		pm.load();
 		
 		//read player data
-		data = new ProfessionData(this, getDataFile("playerTable",false), getDataFile("profession.yml",true));
+		data = new ProfessionData(this, getDataFile("ProfessionData",false), getDataFile("profession.yml",true));
 		tp = new TrackPlacement(this, getDataFile("trackPlacement",false));
-		ts = new TrackSpawner();
+		ts = new TrackSpawner(this);
 		
 		//schedule saveTable
 		getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Runnable(){
@@ -53,7 +52,8 @@ public class MineProfession extends JavaPlugin{
 		getServer().getPluginManager().registerEvents(pm, this);
 		getServer().getPluginManager().registerEvents(tp, this);
 		getServer().getPluginManager().registerEvents(ts, this);
-		
+
+		log.info("MineProfession has been enabled!");
 	}
 	
 	public void onDisable(){
@@ -61,6 +61,21 @@ public class MineProfession extends JavaPlugin{
 		data.saveTable(getConfig().getBoolean("backup"));
 		tp.save(getConfig().getBoolean("backup"));
 		saveConfig();
+	}
+	
+	public void debug(Object from, Object... message){
+		/*StringBuilder sb = new StringBuilder();
+		for(Object str:message){
+			if(sb.toString().length()>0){
+				sb.append(" ");
+			}
+			if(str!=null){
+				sb.append(str.toString());
+			}else{
+				sb.append("null");
+			}
+		}
+		log.info(from.getClass().getName()+": "+sb.toString());*/
 	}
 	
 	private boolean createDataDirectory() {

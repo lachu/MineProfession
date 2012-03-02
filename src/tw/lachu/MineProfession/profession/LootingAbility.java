@@ -21,6 +21,7 @@ public class LootingAbility extends AbilityTrigger {
 					bonus.setData(drop.getData());
 					event.getEntity().getWorld().dropItem(event.getEntity().getLocation(), bonus);
 				}
+				pro.mp.debug(this, player.getName(), drop.getType().name(), result);
 			}
 		}
 	}

@@ -34,13 +34,15 @@ public class BetterEnchantmentAbility extends AbilityTrigger {
 					available.add(ench);
 				}
 			}
-			Enchantment enchToAdd = available.get((new Random()).nextInt(available.size()));
-			int maxLevel = enchToAdd.getMaxLevel();
-			double expect = ((double)maxLevel-1.01)/3;
-			int result = Chance.contribute(expect, Chance.ContributeType.LOWER_AMOUNT_HIGHER_CHANCE)+1;
-			result = Math.min(result, enchToAdd.getMaxLevel());
-			rankMap.put(enchToAdd, result);
-			event.getEnchanter().sendMessage(ChatColor.AQUA+"Enchantment Table emits dazzling light.");
+			if(!available.isEmpty()){
+				Enchantment enchToAdd = available.get((new Random()).nextInt(available.size()));
+				int maxLevel = enchToAdd.getMaxLevel();
+				double expect = ((double)maxLevel-1.01)/3;
+				int result = Chance.contribute(expect, Chance.ContributeType.LOWER_AMOUNT_HIGHER_CHANCE)+1;
+				result = Math.min(result, enchToAdd.getMaxLevel());
+				rankMap.put(enchToAdd, result);
+				event.getEnchanter().sendMessage(ChatColor.MAGIC+"Enchantment Table emits dazzling light.");
+			}
 		}
 	}
 }
