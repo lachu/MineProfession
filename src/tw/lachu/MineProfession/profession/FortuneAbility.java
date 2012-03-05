@@ -18,8 +18,7 @@ public class FortuneAbility extends AbilityTrigger {
 					double expect = drop.getAmount()*getPower(event.getPlayer().getName());
 					int result = Chance.contribute(expect, Chance.ContributeType.LOWER_AMOUNT_HIGHER_CHANCE);
 					if(result>0){
-						ItemStack bonus = new ItemStack(drop.getType(), result);
-						bonus.setData(drop.getData());
+						ItemStack bonus = drop.getData().toItemStack(result);
 						event.getBlock().getWorld().dropItem(event.getBlock().getLocation(), bonus);
 					}
 					pro.mp.debug(this, event.getPlayer().getName(), drop.getType().name(), result);

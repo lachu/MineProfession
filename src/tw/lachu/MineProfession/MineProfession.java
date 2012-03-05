@@ -64,7 +64,7 @@ public class MineProfession extends JavaPlugin{
 	}
 	
 	public void debug(Object from, Object... message){
-		/*StringBuilder sb = new StringBuilder();
+		StringBuilder sb = new StringBuilder();
 		for(Object str:message){
 			if(sb.toString().length()>0){
 				sb.append(" ");
@@ -75,7 +75,7 @@ public class MineProfession extends JavaPlugin{
 				sb.append("null");
 			}
 		}
-		log.info(from.getClass().getName()+": "+sb.toString());*/
+		log.info(from.getClass().getName()+": "+sb.toString());
 	}
 	
 	private boolean createDataDirectory() {

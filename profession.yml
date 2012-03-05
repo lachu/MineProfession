@@ -16,7 +16,7 @@ lumberjack:
    experience:
       BlockBreak:
          LOG: 4
-         LEAVES: 1
+         LEAVES: 0.1
          CLAY: 5
    abilities:
       Fortune:
